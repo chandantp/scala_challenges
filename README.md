@@ -1,1 +1,1 @@
-# Some coding challenges implemented in Scala
+Some coding challenges implemented in Scala
