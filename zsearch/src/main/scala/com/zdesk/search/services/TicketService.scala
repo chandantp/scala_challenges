@@ -33,6 +33,9 @@ object TicketService {
   private var tickets: List[Ticket] = _
 
   private val id2ticket = new mutable.HashMap[String, Ticket]()
+  private val orgId2ticketIds = new mutable.HashMap[Int, mutable.Set[String]]() with mutable.MultiMap[Int, String]
+  private val submitterId2ticketIds = new mutable.HashMap[Int, mutable.Set[String]]() with mutable.MultiMap[Int, String]
+  private val assigneeId2ticketIds = new mutable.HashMap[Int, mutable.Set[String]]() with mutable.MultiMap[Int, String]
 
   def init(file: String = DefaultTicketsFile) = {
     // load data
@@ -53,7 +56,22 @@ object TicketService {
     // build indexes
     for (ticket <- tickets) {
       id2ticket.put(ticket.id, ticket)
+      ticket.organizationId.foreach(orgId2ticketIds.addBinding(_, ticket.id))
+      ticket.submitterId.foreach(submitterId2ticketIds.addBinding(_, ticket.id))
+      ticket.assigneeId.foreach(assigneeId2ticketIds.addBinding(_, ticket.id))
     }
+  }
+
+  def getOrgTickets(orgId: Int): Option[mutable.Set[Ticket]] = {
+    orgId2ticketIds.get(orgId).map(tids => tids.flatMap(tid => id2ticket.get(tid)))
+  }
+
+  def getSubmittedTickets(submitterId: Int): Option[mutable.Set[Ticket]] = {
+    submitterId2ticketIds.get(submitterId).map(tids => tids.flatMap(tid => id2ticket.get(tid)))
+  }
+
+  def getAssignedTickets(assigneeId: Int): Option[mutable.Set[Ticket]] = {
+    assigneeId2ticketIds.get(assigneeId).map(tids => tids.flatMap(tid => id2ticket.get(tid)))
   }
 
   def search(field: String, key: String): List[Ticket] = field match {

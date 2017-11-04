@@ -6,13 +6,13 @@ import com.zdesk.search.services.SearchService._
 
 object MainApp {
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     if (args.size == 0) showUsage()
     else {
       try {
         val (collection, field, key) = parse(args)
         loadData
-        search(collection, field, key).foreach(println)
+        search(collection, field, key)
       } catch {
         case e: IllegalArgumentException => showUsage(Option(e.getMessage))
         case e: FileNotFoundException => println(e.getMessage)

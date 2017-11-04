@@ -45,7 +45,7 @@ object OrganizationService {
     }
   }
 
-  def getOrganization(orgId: Int): Option[Organization] = id2org.get(orgId)
+  def getOrg(orgId: Int): Option[Organization] = id2org.get(orgId)
 
   def search(field: String, key: String): List[Organization] = field match {
     case Id => organizations.filter(org => isMatching(key, org.id))

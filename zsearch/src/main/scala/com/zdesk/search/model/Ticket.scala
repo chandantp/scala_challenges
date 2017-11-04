@@ -1,6 +1,6 @@
 package com.zdesk.search.model
 
-import com.zdesk.search.services.{OrganizationService, UserService}
+import com.zdesk.search.services.SearchService.NotAvailable
 
 case class Ticket(id: String,
                   url: Option[String],
@@ -20,12 +20,25 @@ case class Ticket(id: String,
                   via: Option[String]) {
 
   override def toString: String = {
-    "%s,%s,%s,%s,%s".format(
-      id,
-      subject.getOrElse("--NoSubject--"),
-      submitterId.flatMap(UserService.getUser(_)).flatMap(_.name).getOrElse("--NoSubmitter--"),
-      assigneeId.flatMap(UserService.getUser(_)).flatMap(_.name).getOrElse("--NoAssignee--"),
-      organizationId.flatMap(OrganizationService.getOrganization(_)).flatMap(_.name).getOrElse("--NoOrg--")
-    )
+    "TicketId: %s, Subject: %s".format(id, subject.getOrElse(NotAvailable))
+  }
+
+  def toStringDetailed: String = {
+    "TicketId: %s\nSubject: %s\nType: %s, Priority: %s, Status: %s\nHasIncidents: %s, Via: %s\nTags: %s\nCreatedAt: %s\nDueAt: %s\nExternalId: %s\nUrl: %s\nDescription: %s"
+      .format(
+        id,
+        subject.getOrElse(NotAvailable),
+        ticketType.getOrElse(NotAvailable),
+        priority.getOrElse(NotAvailable),
+        status.getOrElse(NotAvailable),
+        hasIncidents.getOrElse(NotAvailable),
+        via.getOrElse(NotAvailable),
+        tags.map(_.mkString(":")).getOrElse(NotAvailable),
+        createdAt.getOrElse(NotAvailable),
+        dueAt.getOrElse(NotAvailable),
+        externalId.getOrElse(NotAvailable),
+        url.getOrElse(NotAvailable),
+        description.getOrElse(NotAvailable)
+      )
   }
 }

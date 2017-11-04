@@ -36,6 +36,7 @@ object UserService {
   private var users: List[User] = _
 
   private val id2user = new mutable.HashMap[Int, User]()
+  private val orgId2userIds = new mutable.HashMap[Int, mutable.Set[Int]]() with mutable.MultiMap[Int, Int]
 
   def init(file: String = DefaultUsersFile) = {
     // load data
@@ -52,10 +53,15 @@ object UserService {
     // build indexes
     for (user <- users) {
       id2user.put(user.id, user)
+      user.organizationId.foreach(orgId2userIds.addBinding(_, user.id))
     }
   }
 
   def getUser(userId: Int): Option[User] = id2user.get(userId)
+
+  def getOrgUsers(orgId: Int): Option[mutable.Set[User]] = {
+    orgId2userIds.get(orgId).map(uids => uids.flatMap(uid => id2user.get(uid)))
+  }
 
   def search(field: String, key: String): List[User] = field match {
     case Id => users.filter(user => isMatching(key, user.id))
