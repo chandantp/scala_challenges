@@ -23,12 +23,11 @@ case class User(id: Int,
                 role: Option[String]) {
 
   override def toString: String = {
-    "%d,%s,%s,%s,%s".format(
+    "%d,%s,%s,%s".format(
       id,
-      name,
-      alias.getOrElse(""),
-      email.getOrElse(""),
-      organizationId.flatMap(OrganizationService.getOrganization(_)).getOrElse("") // Org name or id
+      name.getOrElse("--NoName--"),
+      alias.getOrElse("--NoAlias--"),
+      organizationId.flatMap(OrganizationService.getOrganization(_)).flatMap(_.name).getOrElse("--NoOrg--")
     )
   }
 }

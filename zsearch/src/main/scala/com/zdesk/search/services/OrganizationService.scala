@@ -1,11 +1,23 @@
 package com.zdesk.search.services
 
 import com.zdesk.search.model.Organization
+import com.zdesk.search.services.SearchService._
+
 import net.liftweb.json.{DefaultFormats, JField, parse}
 
 import scala.collection.mutable
 
 object OrganizationService {
+
+  private val Id = "id"
+  private val Name = "name"
+  private val Details = "details"
+  private val Domains = "domains"
+  private val Tags = "tags"
+  private val SharedTickets = "sharedTickets"
+  private val CreatedAt = "createdAt"
+  private val ExternalId = "externalId"
+  private val Url = "url"
 
   private val DefaultOrganizationsFile = "src/main/resources/organizations.json"
 
@@ -34,5 +46,18 @@ object OrganizationService {
   }
 
   def getOrganization(orgId: Int): Option[Organization] = id2org.get(orgId)
+
+  def search(field: String, key: String): List[Organization] = field match {
+    case Id => organizations.filter(org => isMatching(key, org.id))
+    case Name => organizations.filter(org => isMatching(key, org.name))
+    case Details => organizations.filter(org => isMatching(key, org.details))
+    case Domains => organizations.filter(org => isMatching(key, org.domainNames))
+    case Tags => organizations.filter(org => isMatching(key, org.tags))
+    case SharedTickets => organizations.filter(org => isMatching(key, org.sharedTickets))
+    case CreatedAt => organizations.filter(org => isMatching(key, org.createdAt))
+    case ExternalId => organizations.filter(org => isMatching(key, org.externalId))
+    case Url => organizations.filter(org => isMatching(key, org.url))
+    case _ => throw new IllegalArgumentException("Invalid field '%s' detected !!".format(field))
+  }
 
 }

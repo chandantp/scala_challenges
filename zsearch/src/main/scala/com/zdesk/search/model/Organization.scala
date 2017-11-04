@@ -11,6 +11,6 @@ case class Organization(id: Int,
                         tags: Option[List[String]]) {
 
   override def toString: String = {
-    "%d,%s,%s".format(id, name, details.getOrElse(""))
+    "%d,%s".format(id, name.getOrElse("--NoName--"))
   }
 }

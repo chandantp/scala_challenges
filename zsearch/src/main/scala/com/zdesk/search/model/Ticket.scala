@@ -20,14 +20,12 @@ case class Ticket(id: String,
                   via: Option[String]) {
 
   override def toString: String = {
-    "%s,%s,%s,%s,%s,%s,%s".format(
+    "%s,%s,%s,%s,%s".format(
       id,
-      subject,
-      ticketType.getOrElse(""),
-      status.getOrElse(""),
-      submitterId.flatMap(UserService.getUser(_)).getOrElse(""), // Submitter name or id
-      assigneeId.flatMap(UserService.getUser(_)).getOrElse(""), // Assignee name or id
-      organizationId.flatMap(OrganizationService.getOrganization(_)).getOrElse("") // Org name or id
+      subject.getOrElse("--NoSubject--"),
+      submitterId.flatMap(UserService.getUser(_)).flatMap(_.name).getOrElse("--NoSubmitter--"),
+      assigneeId.flatMap(UserService.getUser(_)).flatMap(_.name).getOrElse("--NoAssignee--"),
+      organizationId.flatMap(OrganizationService.getOrganization(_)).flatMap(_.name).getOrElse("--NoOrg--")
     )
   }
 }
