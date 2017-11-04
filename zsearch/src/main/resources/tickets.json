@@ -1,4 +1,4 @@
-  [
+[
   {
     "_id": "436bf9b0-1147-4c0a-8439-6f79833bff5b",
     "url": "http://initech.zendesk.com/api/v2/tickets/436bf9b0-1147-4c0a-8439-6f79833bff5b.json",
@@ -4582,9 +4582,5 @@
     "has_incidents": true,
     "due_at": "2016-08-03T09:17:37 -10:00",
     "via": "voice"
-  },
-  {
-    "_id": "12345678-1147-4c0a-8439-6f79833bff5b",
-    "subject": "Blahblah blah!"
   }
 ]

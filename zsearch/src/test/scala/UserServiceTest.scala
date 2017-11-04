@@ -382,4 +382,13 @@ class UserServiceTest extends FunSuite with BeforeAndAfter {
     val users = search("url", "url2")
     assert(users.size === 1 && users(0).url === Some("url2"))
   }
+
+  test("getOrgUsers returns None for org with no users") {
+    assert(getOrgUsers(4) == None)
+  }
+
+  test("getOrgUsers return users for org containing users") {
+    val users = getOrgUsers(3).get
+    assert(users.size == 1 && users.toList(0).id == 1)
+  }
 }

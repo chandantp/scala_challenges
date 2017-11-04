@@ -314,4 +314,29 @@ class TicketServiceTest extends FunSuite with BeforeAndAfter {
     assert(tickets.size === 1 && tickets(0).url === Some("url2"))
   }
 
+  test("getOrgTickets returns None for org with no tickets") {
+    assert(getOrgTickets(4) == None)
+  }
+
+  test("getOrgTickets return users for org containing tickets") {
+    val tickets = getOrgTickets(3).get
+    assert(tickets.size == 1 && tickets.toList(0).id == "id2")
+  }
+
+  test("getSubmittedTickets returns None for user with no submitted tickets") {
+    assert(getSubmittedTickets(1) == None)
+  }
+
+  test("getSubmittedTickets returns tickets for user with submitted tickets") {
+    assert(getSubmittedTickets(2).get.size == 2)
+  }
+
+  test("getAssignedTickets returns None for user with no assigned tickets") {
+    assert(getAssignedTickets(2) == None)
+
+  }
+
+  test("getAssignedTickets returns tickets for user with assigned tickets") {
+    assert(getAssignedTickets(1).get.size == 1)
+  }
 }

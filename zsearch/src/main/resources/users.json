@@ -1937,9 +1937,5 @@
     ],
     "suspended": true,
     "role": "agent"
-  },
-  {
-    "_id": 76,
-    "name": "Blah blah",
-  },
+  }
 ]
