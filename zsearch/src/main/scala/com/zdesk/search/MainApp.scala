@@ -6,7 +6,7 @@ import com.zdesk.search.services.SearchService._
 
 object MainApp {
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]) {
     if (args.size == 0) showUsage()
     else {
       try {

@@ -31,11 +31,11 @@ object UserService {
 
   private val DefaultUsersFile = "src/main/resources/users.json"
 
-  private implicit val formats = DefaultFormats
+  private implicit val formats = DefaultFormats // Used by JSON library for loading JSON files
 
   private var users: List[User] = _
 
-  val id2user = new mutable.HashMap[Int, User]()
+  private val id2user = new mutable.HashMap[Int, User]()
 
   def init(file: String = DefaultUsersFile) = {
     // load data

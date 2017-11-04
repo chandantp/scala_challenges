@@ -1,0 +1,78 @@
+[
+  {
+    "_id": 1,
+    "url": "url1",
+    "external_id": "externalId1",
+    "name": "name1 lname1",
+    "alias": "alias1",
+    "created_at": "createdAt1",
+    "active": true,
+    "verified": true,
+    "shared": false,
+    "locale": "en-AU",
+    "timezone": "Australia",
+    "last_login_at": "lastLoginAt1",
+    "email": "name1@gmail.com",
+    "phone": "1111-111-111",
+    "signature": "signature1",
+    "organization_id": 3,
+    "tags": [
+      "tags1",
+      "tags2"
+    ],
+    "suspended": true,
+    "role": "admin"
+  },
+  {
+    "_id": 2,
+    "url": "url2",
+    "external_id": "externalId2",
+    "name": "name2 lname2",
+    "alias": "alias2",
+    "created_at": "createdAt2",
+    "active": false,
+    "verified": false,
+    "shared": true,
+    "locale": "en-US",
+    "timezone": "USA",
+    "last_login_at": "lastLoginAt2",
+    "email": "name2@gmail.com",
+    "phone": "2222-222-222",
+    "signature": "signature2",
+    "organization_id": 1,
+    "tags": [
+      "tags2",
+      "tags3"
+    ],
+    "suspended": false,
+    "role": "user"
+  },
+  {
+    "_id": 3,
+    "url": "url3",
+    "external_id": "externalId3",
+    "name": "name3 lname3",
+    "alias": "alias3",
+    "created_at": "createdAt3",
+    "active": false,
+    "verified": false,
+    "shared": true,
+    "locale": "en-AU",
+    "timezone": "Australia",
+    "last_login_at": "lastLoginAt3",
+    "email": "name3@gmail.com",
+    "phone": "3333-333-333",
+    "signature": "signature3",
+    "organization_id": 1,
+    "tags": [
+      "tags3",
+      "tags4"
+    ],
+    "suspended": true,
+    "role": "admin"
+  },
+  {
+    "_id": 4,
+    "name": "name4 lname4"
+  }
+]

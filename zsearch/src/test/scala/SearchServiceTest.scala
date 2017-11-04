@@ -1,17 +1,10 @@
 package com.desk.search
 
-import com.zdesk.search.services._
 import com.zdesk.search.services.SearchService._
 
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class SearchServiceTest extends FunSuite with BeforeAndAfter {
-
-  before {
-    UserService.init("src/test/resources/users.json")
-    TicketService.init("src/test/resources/tickets.json")
-    OrganizationService.init("src/test/resources/organizations.json")
-  }
 
   test("parsing arguments of invalid length = 1,2 & 4 fails") {
     val input =

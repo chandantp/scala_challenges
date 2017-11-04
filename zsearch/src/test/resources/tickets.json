@@ -1,0 +1,66 @@
+[
+  {
+    "_id": "id1",
+    "url": "url1",
+    "external_id": "externalId1",
+    "created_at": "createdAt1",
+    "type": "incident",
+    "subject": "subject1",
+    "description": "description1",
+    "priority": "high",
+    "status": "pending",
+    "submitter_id": 2,
+    "assignee_id": 3,
+    "organization_id": 1,
+    "tags": [
+      "tag1",
+      "tag2"
+    ],
+    "has_incidents": false,
+    "due_at": "dueAt1",
+    "via": "web"
+  },
+  {
+    "_id": "id2",
+    "url": "url2",
+    "external_id": "externalId2",
+    "created_at": "createdAt2",
+    "type": "task",
+    "subject": "subject2",
+    "description": "description2",
+    "priority": "low",
+    "status": "open",
+    "submitter_id": 2,
+    "assignee_id": 4,
+    "organization_id": 3,
+    "tags": [
+      "tag2",
+      "tag3"
+    ],
+    "has_incidents": true,
+    "due_at": "dueAt2",
+    "via": "chat"
+  },
+  {
+    "_id": "id3",
+    "url": "url3",
+    "external_id": "externalId3",
+    "created_at": "createdAt3",
+    "type": "question",
+    "subject": "subject3",
+    "description": "description3",
+    "priority": "medium",
+    "status": "closed",
+    "submitter_id": 4,
+    "assignee_id": 1,
+    "organization_id": 2,
+    "tags": [],
+    "has_incidents": true,
+    "due_at": "dueAt3",
+    "via": "web"
+  },
+  {
+    "_id": "id4",
+    "subject": "subject4"
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "_id": 1,
+    "url": "url1",
+    "external_id": "externalId1",
+    "name": "name1",
+    "domain_names": [
+      "domain11.com",
+      "domain12.com"
+    ],
+    "created_at": "createdAt1",
+    "details": "details1",
+    "shared_tickets": false,
+    "tags": [
+      "tags1",
+      "tags2"
+    ]
+  },
+  {
+    "_id": 2,
+    "url": "url2",
+    "external_id": "externalId2",
+    "name": "name2",
+    "domain_names": [],
+    "created_at": "createdAt2",
+    "details": "details2",
+    "shared_tickets": false,
+    "tags": []
+  },
+  {
+    "_id": 3,
+    "url": "url3",
+    "external_id": "externalId3",
+    "name": "name3",
+    "domain_names": [
+      "domain31.com",
+      "domain32.com"
+    ],
+    "created_at": "createdAt3",
+    "details": "details3",
+    "shared_tickets": true,
+    "tags": [
+      "tags3",
+      "tags4"
+    ]
+  },
+  {
+    "_id": 4
+  }
+]

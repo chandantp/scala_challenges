@@ -28,11 +28,11 @@ object TicketService {
 
   private val DefaultTicketsFile = "src/main/resources/tickets.json"
 
-  private implicit val formats = DefaultFormats
+  private implicit val formats = DefaultFormats // Used by JSON library for loading JSON files
 
   private var tickets: List[Ticket] = _
 
-  val id2ticket = new mutable.HashMap[String, Ticket]()
+  private val id2ticket = new mutable.HashMap[String, Ticket]()
 
   def init(file: String = DefaultTicketsFile) = {
     // load data

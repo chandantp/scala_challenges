@@ -21,11 +21,11 @@ object OrganizationService {
 
   private val DefaultOrganizationsFile = "src/main/resources/organizations.json"
 
-  private implicit val formats = DefaultFormats
+  private implicit val formats = DefaultFormats // Used by JSON library for loading JSON files
 
   private var organizations: List[Organization] = _
 
-  val id2org = new mutable.HashMap[Int, Organization]()
+  private val id2org = new mutable.HashMap[Int, Organization]()
 
   def init(file: String = DefaultOrganizationsFile) = {
     // load data
