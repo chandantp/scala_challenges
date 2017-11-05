@@ -24,7 +24,8 @@ case class Ticket(id: String,
   }
 
   def toStringDetailed: String = {
-    "TicketId: %s\nSubject: %s\nType: %s, Priority: %s, Status: %s\nHasIncidents: %s, Via: %s\nTags: %s\nCreatedAt: %s\nDueAt: %s\nExternalId: %s\nUrl: %s\nDescription: %s"
+    ("TicketId: %s\nSubject: %s\nType: %s, Priority: %s, Status: %s\nHasIncidents: %s, Via: %s\nTags: %s\n" +
+      "CreatedAt: %s\nDueAt: %s\nExternalId: %s\nUrl: %s\nDescription: %s")
       .format(
         id,
         subject.getOrElse(NotAvailable),

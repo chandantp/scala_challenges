@@ -27,7 +27,8 @@ case class User(id: Int,
   }
 
   def toStringDetailed: String = {
-    "UserId: %d, Name: %s\nAlias: %s, Email: %s, Phone: %s\nRole: %s, Locale: %s, Timezone: %s, Signature: %s\nActive: %s, Verified: %s, Shared: %s, Suspended: %s\nTags: %s\nCreatedAt: %s\nLastLoginAt: %s\nExternalId: %s\nUrl: %s"
+    ("UserId: %d, Name: %s\nAlias: %s, Email: %s, Phone: %s\nRole: %s, Locale: %s, Timezone: %s, Signature: %s\n"+
+      "Active: %s, Verified: %s, Shared: %s, Suspended: %s\nTags: %s\nCreatedAt: %s\nLastLoginAt: %s\nExternalId: %s\nUrl: %s")
       .format(
         id,
         name.getOrElse(NotAvailable),
