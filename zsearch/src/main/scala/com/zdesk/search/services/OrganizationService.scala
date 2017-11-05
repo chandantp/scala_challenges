@@ -1,13 +1,13 @@
 package com.zdesk.search.services
 
 import com.zdesk.search.model.Organization
-import com.zdesk.search.services.SearchService._
+import com.zdesk.search.services.Utils.isMatching
 
 import net.liftweb.json.{DefaultFormats, JField, parse}
 
 import scala.collection.mutable
 
-object OrganizationService {
+class OrganizationService(file: String) {
 
   private val Id = "id"
   private val Name = "name"
@@ -19,30 +19,24 @@ object OrganizationService {
   private val ExternalId = "externalId"
   private val Url = "url"
 
-  private val DefaultOrganizationsFile = "src/main/resources/organizations.json"
-
   private implicit val formats = DefaultFormats // Used by JSON library for loading JSON files
 
-  private var organizations: List[Organization] = _
+  // load data
+  private var organizations: List[Organization] = parse(io.Source.fromFile(file).mkString)
+    .transformField {
+      case JField("_id", x)            => JField("id", x)
+      case JField("external_id", x)    => JField("externalId", x)
+      case JField("created_at", x)     => JField("createdAt", x)
+      case JField("domain_names", x)   => JField("domainNames", x)
+      case JField("shared_tickets", x) => JField("sharedTickets", x)
+    }
+    .extract[List[Organization]]
 
   private val id2org = new mutable.HashMap[Int, Organization]()
 
-  def init(file: String = DefaultOrganizationsFile) = {
-    // load data
-    organizations = parse(io.Source.fromFile(file).mkString)
-      .transformField {
-        case JField("_id", x)            => JField("id", x)
-        case JField("external_id", x)    => JField("externalId", x)
-        case JField("created_at", x)     => JField("createdAt", x)
-        case JField("domain_names", x)   => JField("domainNames", x)
-        case JField("shared_tickets", x) => JField("sharedTickets", x)
-      }
-      .extract[List[Organization]]
-
-    // build indexes
-    for (org <- organizations) {
-      id2org.put(org.id, org)
-    }
+  // build indexes
+  for (org <- organizations) {
+    id2org.put(org.id, org)
   }
 
   def getOrg(orgId: Int): Option[Organization] = id2org.get(orgId)

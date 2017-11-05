@@ -1,13 +1,13 @@
 package com.zdesk.search.services
 
 import com.zdesk.search.model.User
-import com.zdesk.search.services.SearchService._
+import com.zdesk.search.services.Utils.isMatching
 
 import net.liftweb.json.{DefaultFormats, JField, parse}
 
 import scala.collection.mutable
 
-object UserService {
+class UserService(file: String) {
 
   private val Id = "id"
   private val Name = "name"
@@ -29,32 +29,26 @@ object UserService {
   private val ExternalId = "externalId"
   private val Url = "url"
 
-  private val DefaultUsersFile = "src/main/resources/users.json"
-
   private implicit val formats = DefaultFormats // Used by JSON library for loading JSON files
 
-  private var users: List[User] = _
+  // load data
+  private var users: List[User] = parse(io.Source.fromFile(file).mkString)
+    .transformField {
+      case JField("_id", x)             => JField("id", x)
+      case JField("external_id", x)     => JField("externalId", x)
+      case JField("created_at", x)      => JField("createdAt", x)
+      case JField("last_login_at", x)   => JField("lastLoginAt", x)
+      case JField("organization_id", x) => JField("organizationId", x)
+    }
+    .extract[List[User]]
 
   private val id2user = new mutable.HashMap[Int, User]()
   private val orgId2userIds = new mutable.HashMap[Int, mutable.Set[Int]]() with mutable.MultiMap[Int, Int]
 
-  def init(file: String = DefaultUsersFile) = {
-    // load data
-    users = parse(io.Source.fromFile(file).mkString)
-      .transformField {
-        case JField("_id", x)             => JField("id", x)
-        case JField("external_id", x)     => JField("externalId", x)
-        case JField("created_at", x)      => JField("createdAt", x)
-        case JField("last_login_at", x)   => JField("lastLoginAt", x)
-        case JField("organization_id", x) => JField("organizationId", x)
-      }
-      .extract[List[User]]
-
-    // build indexes
-    for (user <- users) {
-      id2user.put(user.id, user)
-      user.organizationId.foreach(orgId2userIds.addBinding(_, user.id))
-    }
+  // build indexes
+  for (user <- users) {
+    id2user.put(user.id, user)
+    user.organizationId.foreach(orgId2userIds.addBinding(_, user.id))
   }
 
   def getUser(userId: Int): Option[User] = id2user.get(userId)

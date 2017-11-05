@@ -1,6 +1,6 @@
 package com.zdesk.search
 
-import com.zdesk.search.services.SearchService.{loadData, search}
+import com.zdesk.search.services.SearchService
 
 import io.StdIn.readLine
 
@@ -26,13 +26,17 @@ object MainApp {
   val UsersMenuOptions = UserFields.mkString(",") + ",backToPreviousMenu"
   val TicketsMenuOptions = TicketFields.mkString(",") + ",backToPreviousMenu"
 
-  val SearchKeyPrompt = "Enter search key (use '#null#' for matching empty fields): "
+  val SearchKeyPrompt = "Enter search key (use empty string for matching empty fields): "
   val UnknownOptionPrompt = "Unknown option, try again..."
+
+  private val OrganizationsFile = "src/main/resources/organizations.json"
+  private val TicketsFile = "src/main/resources/tickets.json"
+  private val UsersFile = "src/main/resources/users.json"
 
   def main(args: Array[String]): Unit = {
     var currentMenu = MainMenu
     var done = false
-    loadData
+    val searchSvc = new SearchService(OrganizationsFile, UsersFile, TicketsFile)
 
     while(!done) {
       try {
@@ -50,7 +54,7 @@ object MainApp {
             readLine.toInt match {
               case i if i >= 1 && i <= 9 => {
                 println(SearchKeyPrompt)
-                search("organizations", OrgFields(i-1), readLine.trim)
+                searchSvc.search("organizations", OrgFields(i-1), readLine.trim)
               }
               case 10 => currentMenu = MainMenu
               case _ => println(UnknownOptionPrompt)
@@ -61,7 +65,7 @@ object MainApp {
             readLine.toInt match {
               case i if i >= 1 && i <= 19 => {
                 println(SearchKeyPrompt)
-                search("users", UserFields(i-1), readLine.trim)
+                searchSvc.search("users", UserFields(i-1), readLine.trim)
               }
               case 20 => currentMenu = MainMenu
               case _ => println(UnknownOptionPrompt)
@@ -72,7 +76,7 @@ object MainApp {
             readLine.toInt match {
               case i if i >= 1 && i <= 16 => {
                 println(SearchKeyPrompt)
-                search("tickets", TicketFields(i-1), readLine.trim)
+                searchSvc.search("tickets", TicketFields(i-1), readLine.trim)
               }
               case 17 => currentMenu = MainMenu
               case _ => println(UnknownOptionPrompt)

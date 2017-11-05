@@ -11,11 +11,13 @@ Readme
 - This application is written using Scala
 - The app has a menu based interface
 - To search, using menus choose 'collection' and 'field' and enter search key
-- To match empty fields, use '#null#' as search key
+- To match empty fields, use empty string as search key
 
 Assumptions
 -----------
-- Only org.id, user.id, ticket.id fields are mandatory
+- Only '_id' fields are mandatory
+- All other fields are optional
+- Unique fields = '_id', 'external_id', 'url', 'phone' & 'email'
 - Search is NOT case sensitive
 
 Dependencies
@@ -65,7 +67,7 @@ Sample screens
       10. backToPreviousMenu
     Choose [1..10]
     2
-    Enter search key (use '#null#' for matching empty fields): 
+    Enter search key (use empty string for matching empty fields): 
     enthaze
     ----------------------------------------------------------------------------------------------------
     Organizations found = 1
@@ -115,7 +117,7 @@ Sample screens
       20. backToPreviousMenu
     Choose [1..20]
     2
-    Enter search key (use '#null#' for matching empty fields): 
+    Enter search key (use empty string for matching empty fields): 
     Catalina simpson
     ----------------------------------------------------------------------------------------------------
     Users found = 1
@@ -161,7 +163,7 @@ Sample screens
       17. backToPreviousMenu
     Choose [1..17]
     2
-    Enter search key (use '#null#' for matching empty fields): 
+    Enter search key (use empty string for matching empty fields): 
     A Catastrophe in Micronesia
     ----------------------------------------------------------------------------------------------------
     Tickets found = 1

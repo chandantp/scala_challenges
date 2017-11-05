@@ -1,13 +1,13 @@
 package com.zdesk.search.services
 
 import com.zdesk.search.model.Ticket
-import com.zdesk.search.services.SearchService._
+import com.zdesk.search.services.Utils.isMatching
 
 import net.liftweb.json.{DefaultFormats, JField, parse}
 
 import scala.collection.mutable
 
-object TicketService {
+class TicketService(file: String) {
 
   private val Id = "id"
   private val Subject = "subject"
@@ -26,40 +26,34 @@ object TicketService {
   private val Url = "url"
   private val Description = "description"
 
-  private val DefaultTicketsFile = "src/main/resources/tickets.json"
-
   private implicit val formats = DefaultFormats // Used by JSON library for loading JSON files
 
-  private var tickets: List[Ticket] = _
+  // load data
+  private var tickets: List[Ticket] = parse(io.Source.fromFile(file).mkString)
+    .transformField {
+      case JField("_id", x)             => JField("id", x)
+      case JField("external_id", x)     => JField("externalId", x)
+      case JField("created_at", x)      => JField("createdAt", x)
+      case JField("type", x)            => JField("ticketType", x)
+      case JField("submitter_id", x)    => JField("submitterId", x)
+      case JField("assignee_id", x)     => JField("assigneeId", x)
+      case JField("organization_id", x) => JField("organizationId", x)
+      case JField("has_incidents", x)   => JField("hasIncidents", x)
+      case JField("due_at", x)          => JField("dueAt", x)
+    }
+    .extract[List[Ticket]]
 
   private val id2ticket = new mutable.HashMap[String, Ticket]()
   private val orgId2ticketIds = new mutable.HashMap[Int, mutable.Set[String]]() with mutable.MultiMap[Int, String]
   private val submitterId2ticketIds = new mutable.HashMap[Int, mutable.Set[String]]() with mutable.MultiMap[Int, String]
   private val assigneeId2ticketIds = new mutable.HashMap[Int, mutable.Set[String]]() with mutable.MultiMap[Int, String]
 
-  def init(file: String = DefaultTicketsFile) = {
-    // load data
-    tickets = parse(io.Source.fromFile(file).mkString)
-      .transformField {
-        case JField("_id", x)             => JField("id", x)
-        case JField("external_id", x)     => JField("externalId", x)
-        case JField("created_at", x)      => JField("createdAt", x)
-        case JField("type", x)            => JField("ticketType", x)
-        case JField("submitter_id", x)    => JField("submitterId", x)
-        case JField("assignee_id", x)     => JField("assigneeId", x)
-        case JField("organization_id", x) => JField("organizationId", x)
-        case JField("has_incidents", x)   => JField("hasIncidents", x)
-        case JField("due_at", x)          => JField("dueAt", x)
-      }
-      .extract[List[Ticket]]
-
-    // build indexes
-    for (ticket <- tickets) {
-      id2ticket.put(ticket.id, ticket)
-      ticket.organizationId.foreach(orgId2ticketIds.addBinding(_, ticket.id))
-      ticket.submitterId.foreach(submitterId2ticketIds.addBinding(_, ticket.id))
-      ticket.assigneeId.foreach(assigneeId2ticketIds.addBinding(_, ticket.id))
-    }
+  // build indexes
+  for (ticket <- tickets) {
+    id2ticket.put(ticket.id, ticket)
+    ticket.organizationId.foreach(orgId2ticketIds.addBinding(_, ticket.id))
+    ticket.submitterId.foreach(submitterId2ticketIds.addBinding(_, ticket.id))
+    ticket.assigneeId.foreach(assigneeId2ticketIds.addBinding(_, ticket.id))
   }
 
   def getOrgTickets(orgId: Int): Option[mutable.Set[Ticket]] = {

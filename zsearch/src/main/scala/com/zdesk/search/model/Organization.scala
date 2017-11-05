@@ -1,6 +1,6 @@
 package com.zdesk.search.model
 
-import com.zdesk.search.services.SearchService.NotAvailable
+import com.zdesk.search.services.Utils.NotAvailable
 
 case class Organization(id: Int,
                         url: Option[String],
