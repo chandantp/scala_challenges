@@ -12,6 +12,7 @@ Readme
 - The app has a menu based interface
 - To search, using menus choose 'collection' and 'field' and enter search key
 - To match empty fields, use empty string as search key
+- Full matches only (no partial matches)
 
 Assumptions
 -----------
@@ -19,6 +20,7 @@ Assumptions
 - All other fields are optional
 - Unique fields = '_id', 'external_id', 'url', 'phone' & 'email'
 - Search is NOT case sensitive
+- Dates are considered as strings
 
 Dependencies
 ------------
@@ -39,6 +41,8 @@ Running the App
 From project root directory, run one of the following commands:
 
     $ sbt run
+    $ sbt "-Djline.terminal=none" run    (in case the input is not echoing - jline library issue)
+    $ sbt "-Djline.terminal=auto" run    (in case the input is not echoing - jline library issue)
 
 Sample screens
 --------------

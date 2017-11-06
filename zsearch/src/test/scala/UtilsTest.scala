@@ -1,9 +1,35 @@
 package com.zdesk.search
 
-import com.zdesk.search.services.Utils.{EmptyKey, isMatching}
-import org.scalatest.FunSuite
+import com.zdesk.search.services.Utils._
 
-class UtilsTest extends FunSuite {
+import scala.collection.mutable
+
+import org.scalatest.{BeforeAndAfter, FunSuite}
+
+class UtilsTest extends FunSuite with BeforeAndAfter {
+
+  val Key = "somekey"
+  val Value = "somevalue"
+  val map = new mutable.HashMap[String, mutable.Set[String]] with mutable.MultiMap[String, String]
+
+  before {
+    map.clear
+  }
+
+  test("bind2Map() binds 'somevalue' to empty string when passed keys = None") {
+    bind2map(None, Value, map)
+    assert(map.get(EmptyKey) === Some(Set(Value)))
+  }
+
+  test("bind2Map() binds 'somevalue' to empty string when passed keys = Option(Nil)") {
+    bind2map(Some(Nil), Value, map)
+    assert(map.get(EmptyKey) === Some(Set(Value)))
+  }
+
+  test("bind2Map() binds 'somevalue' to 'somekey' when passed keys = Some(List('somekey'))") {
+    bind2map(Some(List(Key)), Value, map)
+    assert(map.get(Key) === Some(Set(Value)))
+  }
 
   test("empty search key matches with empty field or list") {
     assert(isMatching(EmptyKey, None))

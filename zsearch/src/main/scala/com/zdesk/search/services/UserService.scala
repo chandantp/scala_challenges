@@ -1,7 +1,7 @@
 package com.zdesk.search.services
 
 import com.zdesk.search.model.User
-import com.zdesk.search.services.Utils.isMatching
+import com.zdesk.search.services.Utils._
 
 import net.liftweb.json.{DefaultFormats, JField, parse}
 
@@ -42,40 +42,77 @@ class UserService(file: String) {
     }
     .extract[List[User]]
 
-  private val id2user = new mutable.HashMap[Int, User]()
-  private val orgId2userIds = new mutable.HashMap[Int, mutable.Set[Int]]() with mutable.MultiMap[Int, Int]
+  /*
+   * DESIGN DECISION: Indexes for fast lookups
+   *
+   * All indexes are String -> String(s) mappings.
+   * This leads to cleaner code as the 'SearchKey' string does not require messy
+   * type conversion and related exception handling in case of invalid values
+   * The performance hit is negligible as this affects only Int/Boolean fields
+   *
+   * No indexes are built for 'url', 'createdAt' & 'lastLoginAt' fields as this
+   * would be memory intensive. These fields will use conventional iterative search.
+   */
+  private val id2user = new mutable.HashMap[String, User] // Unique
+  private val name2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val alias2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val email2user = new mutable.HashMap[String, User] // Unique
+  private val phone2user = new mutable.HashMap[String, User] // Unique
+  private val orgId2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val locale2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val timezone2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val signature2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val role2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val tag2user = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val active2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val verified2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val shared2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val suspended2users = new mutable.HashMap[String, mutable.Set[User]] with mutable.MultiMap[String, User]
+  private val externalId2user = new mutable.HashMap[String, User] // Unique
 
-  // build indexes
+  // build indexes for all except 'url', 'createdAt' & 'lastLoginAt' fields
   for (user <- users) {
-    id2user.put(user.id, user)
-    user.organizationId.foreach(orgId2userIds.addBinding(_, user.id))
+    id2user.put(user.id.toString, user)
+    name2users.addBinding(user.name.getOrElse(EmptyKey).toLowerCase, user)
+    alias2users.addBinding(user.alias.getOrElse(EmptyKey).toLowerCase, user)
+    email2user.put(user.email.getOrElse(EmptyKey).toLowerCase, user)
+    phone2user.put(user.phone.getOrElse(EmptyKey).toLowerCase, user)
+    orgId2users.addBinding(user.organizationId.map(_.toString).getOrElse(EmptyKey), user)
+    locale2users.addBinding(user.locale.getOrElse(EmptyKey).toLowerCase, user)
+    timezone2users.addBinding(user.timezone.getOrElse(EmptyKey).toLowerCase, user)
+    signature2users.addBinding(user.signature.getOrElse(EmptyKey).toLowerCase, user)
+    role2users.addBinding(user.role.getOrElse(EmptyKey).toLowerCase, user)
+    bind2map(user.tags, user, tag2user)
+    active2users.addBinding(user.active.map(_.toString).getOrElse(EmptyKey), user)
+    verified2users.addBinding(user.verified.map(_.toString).getOrElse(EmptyKey), user)
+    shared2users.addBinding(user.shared.map(_.toString).getOrElse(EmptyKey), user)
+    suspended2users.addBinding(user.suspended.map(_.toString).getOrElse(EmptyKey), user)
+    externalId2user.put(user.externalId.getOrElse(EmptyKey).toLowerCase, user)
   }
 
-  def getUser(userId: Int): Option[User] = id2user.get(userId)
+  def getUser(userId: Int): Option[User] = id2user.get(userId.toString)
 
-  def getOrgUsers(orgId: Int): Option[mutable.Set[User]] = {
-    orgId2userIds.get(orgId).map(uids => uids.flatMap(uid => id2user.get(uid)))
-  }
+  def getOrgUsers(orgId: Int): Option[mutable.Set[User]] = orgId2users.get(orgId.toString)
 
   def search(field: String, key: String): List[User] = field match {
-    case Id => users.filter(user => isMatching(key, user.id))
-    case Name => users.filter(user => isMatching(key, user.name))
-    case Alias => users.filter(user => isMatching(key, user.alias))
-    case Email => users.filter(user => isMatching(key, user.email))
-    case Phone => users.filter(user => isMatching(key, user.phone))
-    case OrganizationId => users.filter(user => isMatching(key, user.organizationId))
-    case Locale => users.filter(user => isMatching(key, user.locale))
-    case Timezone => users.filter(user => isMatching(key, user.timezone))
-    case Signature => users.filter(user => isMatching(key, user.signature))
-    case Role => users.filter(user => isMatching(key, user.role))
-    case Tags => users.filter(user => isMatching(key, user.tags))
-    case Active => users.filter(user => isMatching(key, user.active))
-    case Verified => users.filter(user => isMatching(key, user.verified))
-    case Shared => users.filter(user => isMatching(key, user.shared))
-    case Suspended => users.filter(user => isMatching(key, user.suspended))
+    case Id => id2user.get(key).map(List(_)).getOrElse(Nil)
+    case Name => name2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Alias => alias2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Email => email2user.get(key.toLowerCase).map(List(_)).getOrElse(Nil)
+    case Phone => phone2user.get(key.toLowerCase).map(List(_)).getOrElse(Nil)
+    case OrganizationId => orgId2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Locale => locale2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Timezone => timezone2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Signature => signature2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Role => role2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Tags => tag2user.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Active => active2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Verified => verified2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Shared => shared2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
+    case Suspended => suspended2users.get(key.toLowerCase).map(_.toList).getOrElse(Nil)
     case CreatedAt => users.filter(user => isMatching(key, user.createdAt))
     case LastLoginAt => users.filter(user => isMatching(key, user.lastLoginAt))
-    case ExternalId => users.filter(user => isMatching(key, user.externalId))
+    case ExternalId => externalId2user.get(key.toLowerCase).map(List(_)).getOrElse(Nil)
     case Url => users.filter(user => isMatching(key, user.url))
     case _ => throw new IllegalArgumentException("Invalid field '%s' detected !!".format(field))
   }

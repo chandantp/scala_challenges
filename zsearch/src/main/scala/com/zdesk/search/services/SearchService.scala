@@ -1,7 +1,7 @@
 package com.zdesk.search.services
 
 import com.zdesk.search.model._
-import Utils._
+import com.zdesk.search.services.Utils._
 
 class SearchService(orgsFile: String, usersFile: String, ticketsFile: String) {
 
