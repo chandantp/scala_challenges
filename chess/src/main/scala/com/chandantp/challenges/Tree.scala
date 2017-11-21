@@ -1,29 +1,26 @@
 package com.chandantp.challenges
 
 //
-// Trie for tracking the already traversed parts of the solution tree
+// Tree for tracking already traversed parts of the solution space
 //
 case class Tree(branch: String, var branches: Map[String, Tree]) {
 
-  override def hashCode = branch.hashCode
-  
-  override def equals(that: Any): Boolean = that match {
-    case that: Tree => this.branch.equals(that.branch)
-    case _ => false
-  }
+  val Explored = "Explored"
 
-  def isExplored(branch: List[String]): Boolean = {
-    if (branches.isEmpty) true
-    else if (branch.isEmpty) false //Branch not explored fully, only child branch explored
-    else if (branches.contains(branch.head)) branches(branch.head).isExplored(branch.tail)
+  def isExplored(path: List[String]): Boolean = {
+    if (branches.contains(Explored)) true
+    else if (path.isEmpty) false //Branch not explored fully
+    else if (branches.contains(path.head)) branches(path.head).isExplored(path.tail)
     else false
   }
 
-  def add(branch: List[String]) {
-    if (branch.isEmpty) branches = Map()
-    else {
-      if (!branches.contains(branch.head)) branches += (branch.head -> Tree(branch.head, Map()))
-      branches(branch.head).add(branch.tail)
+  def track(path: List[String]): Unit = path match {
+    case Nil => branches = Map(Explored -> Tree(Explored, Map()))
+    case first :: rest => {
+      if (!branches.contains(first)) {
+        branches += (first -> Tree(first, Map()))
+      }
+      branches(first).track(rest)
     }
   }
 
