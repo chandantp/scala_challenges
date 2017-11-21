@@ -10,15 +10,12 @@ object MainApp {
 
       val chessSvc = new ChessService(rows, columns, pieces)
       val startTime = System.currentTimeMillis()
-      val solutions = chessSvc.findAllNonThreateningCombinations
-      val timeElapsedInMs = System.currentTimeMillis() - startTime
-      for (i <- 0 until solutions.size) {
-        println("Solution %d :".format(i+1))
-        chessSvc.displaySolution(solutions(i))
-      }
+      val solutions = chessSvc.findSolutions
+      val timeElapsedInMillis = System.currentTimeMillis() - startTime
 
+      chessSvc.prettyPrintSolutions
       println("Solutions Count = %d".format(solutions.size))
-      println("Time elapsed = %.4f seconds (%d ms)".format(timeElapsedInMs / 1000.0, timeElapsedInMs))
+      println("Time elapsed = %.4f seconds (%d ms)".format(timeElapsedInMillis / 1000.0, timeElapsedInMillis))
 
     } catch {
       case e: Exception => e.printStackTrace
