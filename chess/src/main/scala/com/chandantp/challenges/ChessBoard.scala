@@ -1,14 +1,14 @@
 package com.chandantp.challenges
 
 object ChessBoard {
-  val KING = 'K'
-  val QUEEN = 'Q'
-  val ROOK = 'R'
-  val BISHOP = 'B'
-  val KNIGHT = 'N'
+  val King = 'K'
+  val Queen = 'Q'
+  val Rook = 'R'
+  val Bishop = 'B'
+  val Knight = 'N'
 
-  val EMPTY = ' '
-  val EMPTY_BUT_UNSAFE = 'x'
+  val Empty = ' '
+  val Empty_But_Unsafe = 'x'
 }
 
 class ChessBoard(rows: Int, columns: Int, board: String) {
@@ -21,25 +21,25 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
   }
 
   def this(rows: Int, cols: Int) {
-    this(rows, cols, ChessBoard.EMPTY.toString * rows * cols)
+    this(rows, cols, ChessBoard.Empty.toString * rows * cols)
   }
 
-  private def position(row: Int, col: Int): Int = row * columns + col
+  private def position(row: Int, col: Int) = row * columns + col
 
-  private def isValid(row: Int, col: Int): Boolean = {
+  private def isValid(row: Int, col: Int) = {
     row >= 0 && row < rows && col >= 0 && col < columns
   }
 
-  private def isEmpty(ch: Char):Boolean = (ch == EMPTY_BUT_UNSAFE || ch == EMPTY)
+  private def isEmpty(ch: Char): Boolean = (ch == Empty_But_Unsafe || ch == Empty)
 
-  private def isEmpty(board: String, position: Int):Boolean = isEmpty(board(position))
+  private def isEmpty(board: String, position: Int): Boolean = isEmpty(board(position))
 
   private def isOccupied(row: Int, col: Int) = {
     val pos = position(row, col)
-    isValid(row, col) && board(pos) != EMPTY && board(pos) != EMPTY_BUT_UNSAFE
+    isValid(row, col) && board(pos) != Empty && board(pos) != Empty_But_Unsafe
   }
 
-  private def isRowOccupied(row: Int): Boolean = {
+  private def isRowOccupied(row: Int) = {
     def _isRowOccupied(c: Int): Boolean = {
       if (c == columns) false else (if (isOccupied(row, c)) true else _isRowOccupied(c+1))
     }
@@ -70,28 +70,28 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
    * existing pawns already present on the chess board
    */
   def canPlacePawn(pawn: Char, row: Int, col: Int): Boolean = pawn match {
-    case KING   => {
-      board(position(row, col)) == EMPTY &&
+    case King   => {
+      board(position(row, col)) == Empty &&
         !(isOccupied(row - 1, col - 1) || isOccupied(row - 1, col) ||
           isOccupied(row - 1, col + 1) || isOccupied(row, col + 1) ||
           isOccupied(row + 1, col + 1) || isOccupied(row + 1, col) ||
           isOccupied(row + 1, col - 1) || isOccupied(row, col - 1))
     }
-    case QUEEN  => {
-      board(position(row, col)) == EMPTY &&
+    case Queen  => {
+      board(position(row, col)) == Empty &&
         !(isRowOccupied(row) || isColumnOccupied(col) || areDiagonalsOccupied(row, col))
     }
-    case ROOK   => {
-      board(position(row, col)) == EMPTY &&
+    case Rook   => {
+      board(position(row, col)) == Empty &&
         !(isRowOccupied(row) || isColumnOccupied(col))
 
     }
-    case BISHOP => {
-      board(position(row, col)) == EMPTY &&
+    case Bishop => {
+      board(position(row, col)) == Empty &&
         !(areDiagonalsOccupied(row, col))
     }
-    case KNIGHT => {
-      board(position(row, col)) == EMPTY &&
+    case Knight => {
+      board(position(row, col)) == Empty &&
         !(isOccupied(row - 2, col - 1) || isOccupied(row - 2, col + 1) ||
           isOccupied(row + 2, col - 1) || isOccupied(row + 2, col + 1) ||
           isOccupied(row - 1, col - 2) || isOccupied(row + 1, col - 2) ||
@@ -112,7 +112,7 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
 
     def markUnsafe(row: Int, col: Int) {
       val pos = position(row, col)
-      if (isValid(row, col)) buf(pos) = EMPTY_BUT_UNSAFE
+      if (isValid(row, col)) buf(pos) = Empty_But_Unsafe
     }
 
     def markRowUnsafe(row: Int) = for (c <- 0 until columns) markUnsafe(row, c)
@@ -134,7 +134,7 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
     }
 
     pawn match {
-      case KING   => {
+      case King   => {
         markUnsafe(row - 1, col - 1); // Top-Left
         markUnsafe(row - 1, col); // Top
         markUnsafe(row - 1, col + 1); // Top-Right
@@ -143,24 +143,24 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
         markUnsafe(row + 1, col); // Bottom
         markUnsafe(row + 1, col - 1); // Bottom-Left
         markUnsafe(row, col - 1); // Left
-        buf(position(row, col)) = KING
+        buf(position(row, col)) = King
       }
-      case QUEEN  => {
+      case Queen  => {
         markRowUnsafe(row)
         markColumnUnsafe(col)
         markDiagonalsUnsafe(row, col)
-        buf(position(row, col)) = QUEEN
+        buf(position(row, col)) = Queen
       }
-      case ROOK   => {
+      case Rook   => {
         markRowUnsafe(row)
         markColumnUnsafe(col)
-        buf(position(row, col)) = ROOK
+        buf(position(row, col)) = Rook
       }
-      case BISHOP => {
+      case Bishop => {
         markDiagonalsUnsafe(row, col)
-        buf(position(row, col)) = BISHOP
+        buf(position(row, col)) = Bishop
       }
-      case KNIGHT => {
+      case Knight => {
         markUnsafe(row - 2, col - 1) // Top-Left
         markUnsafe(row - 2, col + 1) // Top-Right
         markUnsafe(row + 2, col - 1) // Bottom-Left
@@ -169,7 +169,7 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
         markUnsafe(row + 1, col - 2) // Left-Bottom
         markUnsafe(row - 1, col + 2) // Right-Top
         markUnsafe(row + 1, col + 2) // Right-Bottom
-        buf(position(row, col)) = KNIGHT
+        buf(position(row, col)) = Knight
       }
       case _ => {
         throw new IllegalArgumentException("Unknown pawn '%c'".format(pawn))
@@ -181,17 +181,17 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
 
   }
 
-  // return list of "position:pawn" pairs
-  def toStringReadable = {
+  // return chess board as list of "position:pawn" pairs
+  def encoded: List[String] = {
     board.zipWithIndex.filter{case (c,_) => !isEmpty(c)}.map{case (pawn,i) => i+":"+pawn}.toList
   }
 
-  override def toString = board
+  override def toString: String = board
 
-  def prettyPrint = {
+  def prettyPrint: Unit = {
     for (row <- 0 until rows; col <- 0 until columns) {
       val pos = row * columns + col
-      val pawn = if (isEmpty(board, pos)) EMPTY else board(pos)
+      val pawn = if (isEmpty(board, pos)) Empty else board(pos)
       print("|" + pawn + (if (col < columns - 1) "" else "|\n"))
     }
   }

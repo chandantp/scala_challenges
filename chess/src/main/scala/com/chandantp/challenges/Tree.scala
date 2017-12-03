@@ -5,7 +5,7 @@ package com.chandantp.challenges
 //
 case class Tree(branch: String, var branches: Map[String, Tree]) {
 
-  val Explored = "Explored"
+  val Explored = "xXx"
 
   def isExplored(path: List[String]): Boolean = {
     if (branches.contains(Explored)) true
@@ -14,13 +14,11 @@ case class Tree(branch: String, var branches: Map[String, Tree]) {
     else false
   }
 
-  def track(path: List[String]): Unit = path match {
+  def add(path: List[String]): Unit = path match {
     case Nil => branches = Map(Explored -> Tree(Explored, Map()))
     case first :: rest => {
-      if (!branches.contains(first)) {
-        branches += (first -> Tree(first, Map()))
-      }
-      branches(first).track(rest)
+      if (!branches.contains(first)) branches += (first -> Tree(first, Map()))
+      branches(first).add(rest)
     }
   }
 

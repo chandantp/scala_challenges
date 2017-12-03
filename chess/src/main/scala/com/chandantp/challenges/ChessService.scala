@@ -2,9 +2,17 @@ package com.chandantp.challenges
 
 class ChessService(rows: Int, columns: Int, pieces: String) {
 
-  private val pawns = pieces.split("").toList.map(_(0))
+  import ChessBoard._
+  private val ValidPawns = Set(King, Queen, Rook, Bishop, Knight)
 
-  private val solutionTree = Tree("root", Map())
+  private val pawns = {
+    if (!pieces.forall(ValidPawns.contains(_))) {
+      throw new IllegalArgumentException("Invalid pawn!, valid pawns are: " + ValidPawns.mkString(","))
+    }
+    pieces.split("").toList.map(_(0))
+  }
+
+  private val solutionTree = Tree(Empty.toString, Map())
 
   private val solutions = collection.mutable.ListBuffer[ChessBoard]()
 
@@ -19,10 +27,10 @@ class ChessService(rows: Int, columns: Int, pieces: String) {
     for (row <- 0 until rows; col <- 0 until columns) {
       if (board.canPlacePawn(pawn, row, col)) {
         val newBoard = board.placePawn(pawn, row, col)
-        val branch = newBoard.toStringReadable
+        val branch = newBoard.encoded
         if (!solutionTree.isExplored(branch)) {
           remainingPawns.foreach(pawn => placePawn(pawn, usedPawnsUpdated, newBoard))
-          solutionTree.track(branch)
+          solutionTree.add(branch)
           if (branch.size == pawns.size) {
             solutions.append(newBoard)
           }
@@ -36,7 +44,7 @@ class ChessService(rows: Int, columns: Int, pieces: String) {
     solutions.toList
   }
 
-  def displaySolutions: Unit = solutions.zipWithIndex.foreach {
+  def prettyPrintSolutions: Unit = solutions.zipWithIndex.foreach {
     case (chessBoard, i) => {
       println("Solution %d:".format(i+1))
       chessBoard.prettyPrint
