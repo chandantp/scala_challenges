@@ -19,7 +19,20 @@ final score. Needless to say, the lower the time, the better.
 Readme
 ------
 - This application is written using Scala
-- The app accepts the input (board size & chess pieces) as command line arguments
+- The app accepts the input (board size, chess pieces, print mode) as command line arguments
+
+Caveats
+-------
+- If program is executed in silent mode, NO PROGRESS INFORMATION IS SHOWN!!
+  This is not advisable for large board sizes (7x7 or more) where the program can run for several
+  minutes or even hours before displaying the final output.
+    
+- For large board sizes >= 7x7, set bigger heap size as shown below. Alternatively, you set it for all 
+  input regardless of the board size.
+
+    JAVA_OPTS = "-Xms4g -Xmx8g"
+
+  Refer to the examples below for more information.
 
 Dependencies
 ------------
@@ -34,59 +47,73 @@ From project root directory, run following command to run test cases
 
     $ sbt test
 
+Usage
+-----
+    USAGE: run <rows> <columns> <pawns> [-v|-s]
+        rows : number of rows on the chess board
+     columns : number of columns on the chess board
+       pawns : a string comprising of 'K', 'Q', 'R', 'B', 'N' which denote pawns
+               repeat the characters if the pawn occurs multiple times.
+          -s : silent mode, solution count & solution are not printed (optional)
+          -v : print solution count & solution (optional)
+
+    Note that in the absence of -v|-s, only the solution count is printed
+
 Running the App
 ---------------
 From project root directory, run one of the following commands:
 
-    $ sbt run
+    $ sbt run <rows> <columns> <pawns> [-v|-s]
+
+    $ scala chess_2.12-1.0.jar <rows> <columns> <pawns> [-v|-s]
 
 Examples
 --------
 
-(1) Board size: 3x3, Pawns: 2 Kings & 1 Rook
+(1) Board size: 7x7, Pawns: 2 Kings, 2 Queens, 2 Bishops & 1 Knight, PrintMode: Normal
 	
-	$ sbt run 3 3 KKR
-    [info] Running com.chandantp.challenges.MainApp 3 3 KKR
-    
-    Solution 1 :
+	$ JAVA_OPTS="-Xms4g -Xmx8g" scala chess_2.12-1.0.jar 7 7 KKQQBBN
+	Found solution 1
+    Found solution 2
+    Found solution 3
+        .
+        .
+        .
+    Found solution 3063827
+    Found solution 3063828
+    Total Solutions = 3063828
+    Time elapsed = 598.139 seconds (598139 ms)
+     
+(2) Board size: 3x3, Pawns: 2 Kings & 1 Rook, PrintMode: Verbose
+	
+	$ export JAVA_OPTS="-Xms4g -Xmx8g" 
+	$ scala chess_2.12-1.0.jar 3 3 KKR -v
+    Solution 1:
     |K| |K|
     | | | |
     | |R| |
     
-    Solution 2 :
+    Solution 2:
     |K| | |
     | | |R|
     |K| | |
     
-    Solution 3 :
+    Solution 3:
     | | |K|
     |R| | |
     | | |K|
     
-    Solution 4 :
+    Solution 4:
     | |R| |
     | | | |
     |K| |K|
     
-    Solutions Count = 4
-    Time elapsed = 0.0040 seconds (4 ms)
+    Total Solutions = 4
+    Time elapsed = 0.039 seconds (39 ms)
 
-(2) Board size: 4x4, Pawns: 2 Kings & 2 Rooks
-	
-	$ sbt run 4 4 QQQQ
-    [info] Running com.chandantp.challenges.MainApp 4 4 QQQQ
-    
-    Solution 1 :
-    | |Q| | |
-    | | | |Q|
-    |Q| | | |
-    | | |Q| |
-    
-    Solution 2 :
-    | | |Q| |
-    |Q| | | |
-    | | | |Q|
-    | |Q| | |
-    
-    Solutions Count = 2
-    Time elapsed = 0.0080 seconds (8 ms)
+(3) Board size: 5x5, Pawns: 5 Queens, PrintMode: Silent
+
+	$ JAVA_OPTS="-Xms4g -Xmx8g"
+	$ scala chess_2.12-1.0.jar 5 5 QQQQQ -s
+    Total Solutions = 10
+    Time elapsed = 0.098 seconds (98 ms)

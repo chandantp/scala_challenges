@@ -1,18 +1,26 @@
 package com.chandantp.challenges
 
-class ChessService(rows: Int, columns: Int, pieces: String) {
+import com.chandantp.challenges.ChessBoard._
+import ChessService._
 
-  import ChessBoard._
-  private val ValidPawns = Set(King, Queen, Rook, Bishop, Knight)
+import collection.mutable
+
+object ChessService {
+  val Verbose = "-v"
+  val Silent = "-s"
+  val ValidPawns = Set(King, Queen, Rook, Bishop, Knight)
+}
+
+class ChessService(rows: Int, columns: Int, pieces: String, printMode: Option[String]) {
 
   private val pawns = {
     if (!pieces.forall(ValidPawns.contains(_))) {
       throw new IllegalArgumentException("Invalid pawn!, valid pawns are: " + ValidPawns.mkString(","))
     }
-    pieces.split("").toList.map(_(0))
+    pieces.split("").toList.map(_ (0))
   }
 
-  private val solutionTree = Tree(Empty.toString, Map())
+  private val solutionTree = TrackerTree(mutable.Map())
 
   private val solutions = collection.mutable.ListBuffer[ChessBoard]()
 
@@ -20,7 +28,9 @@ class ChessService(rows: Int, columns: Int, pieces: String) {
    * Find all possible combinations of non-threatening positions
    * that the pawns can occupy on the chess board
    */
-  private def placePawn(pawn: Char, usedPawns: List[Char], board: ChessBoard): Unit = {
+  private def placePawn(pawn: Char,
+                        usedPawns: List[Char],
+                        board: ChessBoard): Unit = {
     val usedPawnsUpdated = pawn :: usedPawns
     val remainingPawns = pawns.diff(usedPawnsUpdated).distinct
 
@@ -30,9 +40,10 @@ class ChessService(rows: Int, columns: Int, pieces: String) {
         val branch = newBoard.encoded
         if (!solutionTree.isExplored(branch)) {
           remainingPawns.foreach(pawn => placePawn(pawn, usedPawnsUpdated, newBoard))
-          solutionTree.add(branch)
+          solutionTree.markAsExplored(branch)
           if (branch.size == pawns.size) {
             solutions.append(newBoard)
+            printSolution(solutions.size, newBoard)
           }
         }
       }
@@ -44,12 +55,17 @@ class ChessService(rows: Int, columns: Int, pieces: String) {
     solutions.toList
   }
 
-  def prettyPrintSolutions: Unit = solutions.zipWithIndex.foreach {
-    case (chessBoard, i) => {
-      println("Solution %d:".format(i+1))
-      chessBoard.prettyPrint
-      println
+  def printSolution(count: Int, board: ChessBoard): Unit = printMode match {
+    case None => println("Found solution %d".format(count))
+    case Some(mode) => mode match {
+      case Silent => // print nothing
+      case Verbose => {
+        println("Solution %d:".format(count))
+        board.prettyPrint
+        println
+      }
     }
+    case _ => throw new IllegalArgumentException("Unknown print mode!")
   }
 
 }

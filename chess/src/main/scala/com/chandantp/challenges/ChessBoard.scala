@@ -133,7 +133,7 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
       markDiagonalUnsafe(row, col, 1, -1) // Bottom-Left
     }
 
-    pawn match {
+    if (isValid(row, col)) pawn match {
       case King   => {
         markUnsafe(row - 1, col - 1); // Top-Left
         markUnsafe(row - 1, col); // Top
@@ -183,10 +183,10 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
 
   // return chess board as list of "position:pawn" pairs
   def encoded: List[String] = {
-    board.zipWithIndex.filter{case (c,_) => !isEmpty(c)}.map{case (pawn,i) => i+":"+pawn}.toList
+    board.zipWithIndex.filter{case (c,_) => !isEmpty(c)}.map{case (pawn,i) => i+""+pawn}.toList
   }
 
-  override def toString: String = board
+  override def toString: String = encoded.mkString(":")
 
   def prettyPrint: Unit = {
     for (row <- 0 until rows; col <- 0 until columns) {
