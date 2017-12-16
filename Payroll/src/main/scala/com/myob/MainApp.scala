@@ -2,27 +2,32 @@ package com.myob
 
 import scala.util.{Try, Success, Failure}
 
-object MainApp {
+object MainApp extends App {
 
   val Separator = ","
 
-  def main(args: Array[String]): Unit = {
+  println("Enter Payroll Records one per line in CSV format specified below (Ctrl-D for EOI):")
+  println(Employee.Header)
 
-    val payrollRecords = io.Source.stdin.getLines.toList.map(parse)
+  val payslips = io.Source.stdin.getLines.toList.flatMap(parse).flatMap(Payslip(_))
+  println("\n#### Payslips ####:\n" + Payslip.Header)
+  payslips.foreach(println)
 
-    println(payrollRecords)
-
-  }
-
-  def parse(record: String): Option[PayRecord] = {
-    record.split(Separator) match {
+  def parse(employeeRecord: String): Option[Employee] = {
+    employeeRecord.split(Separator) match {
       case Array(firstName, lastName, annualSalary, superRate, duration) => {
-        Try(PayRecord(firstName, lastName, annualSalary, superRate, duration)) match {
-          case Success(record) => Option(record)
-          case Failure(ex)     => println(ex); None
+        Try(Employee(firstName, lastName, annualSalary, superRate, duration)) match {
+          case Success(employee) => Option(employee)
+          case Failure(ex)      => {
+            ex.printStackTrace()
+            None
+          }
         }
       }
-      case _ => println("Invalid or missing fields in input record '%s'".format(record)); None
+      case _ => {
+        println("Invalid or incorrect field count in input = '%s'".format(employeeRecord))
+        None
+      }
     }
   }
 
