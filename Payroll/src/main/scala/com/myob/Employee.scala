@@ -14,7 +14,7 @@ case class Employee(firstName: String,
 
   if (annualSalary <= 0) {
     throw new IllegalArgumentException(
-      "AnnualSalary should be positive : %f".format(annualSalary))
+      "AnnualSalary should be positive : %.2f".format(annualSalary))
   }
 
   if (superRate < 0 || superRate > 0.5) {
@@ -31,24 +31,30 @@ object Employee {
   val Separator = ","
   val Header = "FirstName,LastName,AnnualSalary,SuperRate,PayPeriod"
 
-  def apply(employee: String): Employee = employee.split(Separator) match {
+  def apply(employee: String): Employee = Option(employee) match {
 
-    case Array(firstName, lastName, annualSalary, superRate, payPeriod) => {
-      if (annualSalary == null || annualSalary.trim.length == 0 ||
-        superRate == null || superRate.trim.length == 0) {
-        throw new IllegalArgumentException("No employee field can be empty or null!!")
+    case None => throw new IllegalArgumentException("Employee record cannot be null!!")
+
+    case Some(employee) => employee.split(Separator) match {
+
+      case Array(firstName, lastName, annualSalary, superRate, payPeriod) => {
+        if (annualSalary == null || annualSalary.trim.length == 0 ||
+          superRate == null || superRate.trim.length == 0 ||
+          payPeriod == null || payPeriod.trim.length == 0) {
+          throw new IllegalArgumentException("No employee field can be empty or null!!")
+        }
+
+        Employee(firstName.trim,
+          lastName.trim,
+          annualSalary.trim.toDouble,
+          superRate.replace(Percent, Empty).trim.toDouble / 100.0,
+          PayMonth(payPeriod))
       }
 
-      Employee(firstName.trim,
-        lastName.trim,
-        annualSalary.trim.toDouble,
-        superRate.replace(Percent, Empty).trim.toDouble / 100.0,
-        PayMonth(payPeriod))
-    }
-
-    case _ => {
-      throw new IllegalArgumentException(
-        "Missing/extra fields in employee record: '%s'".format(employee))
+      case _ => {
+        throw new IllegalArgumentException(
+          "Missing/extra fields in employee record: '%s'".format(employee))
+      }
     }
   }
 

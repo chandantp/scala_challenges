@@ -46,7 +46,7 @@ object PayMonth {
   def apply(period: String): List[PayMonth] = {
 
     if (period == null || period.trim.length == 0) {
-      throw new IllegalArgumentException("Period cannot be empty or null")
+      throw new IllegalArgumentException("Period cannot be empty or null!!")
     }
 
     period.trim.split(Separator1) match {
