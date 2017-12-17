@@ -25,8 +25,8 @@ object Payslip {
   def apply(emp: Employee): List[Payslip] = emp.payMonths.map(payMonth => {
 
     val name = "%s %s".format(emp.firstName, emp.lastName)
-    val grossIncome = Math.round((emp.annualSalary / 12.0) * payMonth.daysWorkedRatio)
-    val incomeTax = computeTax(emp.annualSalary, payMonth.daysWorkedRatio)
+    val grossIncome = Math.round((emp.annualSalary / 12.0) * payMonth.workingMonthRatio)
+    val incomeTax = computeTax(emp.annualSalary, payMonth.workingMonthRatio)
     val netIncome = Math.round(grossIncome - incomeTax)
     val superAmount = Math.round(grossIncome * emp.superRate)
 
@@ -36,10 +36,10 @@ object Payslip {
 
 
 
-  def computeTax(annualSalary: Double, daysWorkedRatio: Double): Long = {
+  def computeTax(annualSalary: Double, workingMonthRatio: Double): Long = {
 
     def compute(baseTax: Double, deduction: Double, rate: Double): Double = {
-      ((baseTax + ((annualSalary - deduction) * rate)) / 12.0) * daysWorkedRatio
+      ((baseTax + ((annualSalary - deduction) * rate)) / 12.0) * workingMonthRatio
     }
 
     Math.round(annualSalary match {

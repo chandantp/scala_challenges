@@ -19,7 +19,7 @@ case class PayMonth(startDate: LocalDate, endDate: LocalDate) {
       "Month period cannot exceed 1 month duration : '%s'".format(period))
   }
 
-  val daysWorkedRatio: Double = {
+  val workingMonthRatio: Double = {
     if (period.getMonths == 0)
       period.getDays.toDouble / startDate.getMonth.length(startDate.isLeapYear).toDouble
     else 1.0

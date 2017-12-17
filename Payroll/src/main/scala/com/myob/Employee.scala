@@ -26,27 +26,30 @@ case class Employee(firstName: String,
 
 object Employee {
 
-  val Percent = "%"
   val Empty = ""
+  val Percent = "%"
+  val Separator = ","
   val Header = "FirstName,LastName,AnnualSalary,SuperRate,PayPeriod"
 
-  def apply(firstName: String,
-            lastName: String,
-            annualSalary: String,
-            superRate: String,
-            payPeriod: String): Employee = {
+  def apply(employee: String): Employee = employee.split(Separator) match {
 
+    case Array(firstName, lastName, annualSalary, superRate, payPeriod) => {
+      if (annualSalary == null || annualSalary.trim.length == 0 ||
+        superRate == null || superRate.trim.length == 0) {
+        throw new IllegalArgumentException("No employee field can be empty or null!!")
+      }
 
-    if (annualSalary == null || annualSalary.trim.length == 0 ||
-      superRate == null || superRate.trim.length == 0) {
-      throw new IllegalArgumentException("No employee field can be empty or null!!")
+      Employee(firstName.trim,
+        lastName.trim,
+        annualSalary.trim.toDouble,
+        superRate.replace(Percent, Empty).trim.toDouble / 100.0,
+        PayMonth(payPeriod))
     }
 
-    Employee(firstName.trim,
-      lastName.trim,
-      annualSalary.trim.toDouble,
-      superRate.replace(Percent, Empty).trim.toDouble / 100.0,
-      PayMonth(payPeriod))
+    case _ => {
+      throw new IllegalArgumentException(
+        "Missing/extra fields in employee record: '%s'".format(employee))
+    }
   }
 
 }
