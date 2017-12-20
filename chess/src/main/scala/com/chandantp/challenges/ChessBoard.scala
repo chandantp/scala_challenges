@@ -66,10 +66,10 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
   }
 
   /*
-   * Check if pawn can be safely placed without threatening any
+   * Check if piece can be safely placed without threatening any
    * existing pawns already present on the chess board
    */
-  def canPlacePawn(pawn: Char, row: Int, col: Int): Boolean = pawn match {
+  def canPlacePiece(piece: Char, row: Int, col: Int): Boolean = piece match {
     case King   => {
       board(position(row, col)) == Empty &&
         !(isOccupied(row - 1, col - 1) || isOccupied(row - 1, col) ||
@@ -98,15 +98,15 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
           isOccupied(row - 1, col + 2) || isOccupied(row + 1, col + 2))
     }
     case _ => {
-      throw new IllegalArgumentException("Unknown pawn '%c'".format(pawn))
+      throw new IllegalArgumentException("Unknown chess piece '%c'".format(piece))
     }
   }
 
   /*
-   * Place pawn at the specified location on the chess board
-   * and mark locations that can be attacked by the pawn as unsafe
+   * Place piece at the specified location on the chess board
+   * and mark locations that can be attacked by the piece as unsafe
    */
-  def placePawn(pawn: Char, row: Int, col: Int): ChessBoard = {
+  def placePiece(piece: Char, row: Int, col: Int): ChessBoard = {
 
     val buf = new StringBuilder(board)
 
@@ -133,7 +133,7 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
       markDiagonalUnsafe(row, col, 1, -1) // Bottom-Left
     }
 
-    if (isValid(row, col)) pawn match {
+    if (isValid(row, col)) piece match {
       case King   => {
         markUnsafe(row - 1, col - 1); // Top-Left
         markUnsafe(row - 1, col); // Top
@@ -172,27 +172,29 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
         buf(position(row, col)) = Knight
       }
       case _ => {
-        throw new IllegalArgumentException("Unknown pawn '%c'".format(pawn))
+        throw new IllegalArgumentException("Unknown chess piece '%c'".format(piece))
       }
     }
 
-    // return new chess board after placing the pawn
+    // return new chess board after placing the piece
     new ChessBoard(rows, columns, buf.toString)
 
   }
 
-  // return chess board as list of "position:pawn" pairs
+  // return chess board as list of "position:piece" pairs
   def encoded: List[String] = {
-    board.zipWithIndex.filter{case (c,_) => !isEmpty(c)}.map{case (pawn,i) => i+""+pawn}.toList
+    board.zipWithIndex.filter{case (c,_) => !isEmpty(c)}.map{case (piece,i) => i+""+piece}.toList
   }
 
   override def toString: String = encoded.mkString(":")
 
-  def prettyPrint: Unit = {
+  def toStringDetailed: String = {
+    val buf = new StringBuffer
     for (row <- 0 until rows; col <- 0 until columns) {
       val pos = row * columns + col
-      val pawn = if (isEmpty(board, pos)) Empty else board(pos)
-      print("|" + pawn + (if (col < columns - 1) "" else "|\n"))
+      val piece = if (isEmpty(board, pos)) Empty else board(pos)
+      buf.append("|" + piece + (if (col < columns - 1) "" else "|\n"))
     }
+    buf.toString
   }
 }

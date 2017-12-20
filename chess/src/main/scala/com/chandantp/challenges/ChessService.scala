@@ -1,71 +1,41 @@
 package com.chandantp.challenges
 
-import com.chandantp.challenges.ChessBoard._
-import ChessService._
+class ChessService(rows: Int, columns: Int, pieces: String) {
 
-import collection.mutable
+  private val chessPieces = pieces.split("").toList.map(_ (0))
+  private val solutionSpace = TrackerTree(collection.mutable.Map())
+  private var solutions = List[ChessBoard]()
 
-object ChessService {
-  val Verbose = "-v"
-  val Silent = "-s"
-  val ValidPawns = Set(King, Queen, Rook, Bishop, Knight)
-}
+  def solutionSize = solutions.size
 
-class ChessService(rows: Int, columns: Int, pieces: String, printMode: Option[String]) {
+  def lastComputedSolution: ChessBoard = solutions.last
 
-  private val pawns = {
-    if (!pieces.forall(ValidPawns.contains(_))) {
-      throw new IllegalArgumentException("Invalid pawn!, valid pawns are: " + ValidPawns.mkString(","))
-    }
-    pieces.split("").toList.map(_ (0))
-  }
+  def computeSolutions: List[ChessBoard] = {
+    /*
+     * Find all possible combinations of non-threatening positions
+     * that the chess pieces can occupy on the chess board
+     */
+    def placeChessPiece(chessPiece: Char, usedPieces: List[Char], board: ChessBoard): Unit = {
+      val usedPiecesUpdated = chessPiece :: usedPieces
+      val remainingPieces = chessPieces.diff(usedPiecesUpdated).distinct
 
-  private val solutionTree = TrackerTree(mutable.Map())
-
-  private val solutions = collection.mutable.ListBuffer[ChessBoard]()
-
-  /*
-   * Find all possible combinations of non-threatening positions
-   * that the pawns can occupy on the chess board
-   */
-  private def placePawn(pawn: Char,
-                        usedPawns: List[Char],
-                        board: ChessBoard): Unit = {
-    val usedPawnsUpdated = pawn :: usedPawns
-    val remainingPawns = pawns.diff(usedPawnsUpdated).distinct
-
-    for (row <- 0 until rows; col <- 0 until columns) {
-      if (board.canPlacePawn(pawn, row, col)) {
-        val newBoard = board.placePawn(pawn, row, col)
-        val branch = newBoard.encoded
-        if (!solutionTree.isExplored(branch)) {
-          remainingPawns.foreach(pawn => placePawn(pawn, usedPawnsUpdated, newBoard))
-          solutionTree.markAsExplored(branch)
-          if (branch.size == pawns.size) {
-            solutions.append(newBoard)
-            printSolution(solutions.size, newBoard)
+      for (row <- 0 until rows; col <- 0 until columns) {
+        if (board.canPlacePiece(chessPiece, row, col)) {
+          val newBoard = board.placePiece(chessPiece, row, col)
+          val newBoardBranch = newBoard.encoded
+          if (!solutionSpace.isExplored(newBoardBranch)) {
+            remainingPieces.foreach(piece => placeChessPiece(piece, usedPiecesUpdated, newBoard))
+            solutionSpace.markAsExplored(newBoardBranch)
+            if (newBoardBranch.size == chessPieces.size) {
+              solutions = newBoard :: solutions
+            }
           }
         }
       }
     }
-  }
 
-  def computeSolutions: List[ChessBoard] = {
-    pawns.distinct.foreach(pawn => placePawn(pawn, Nil, new ChessBoard(rows, columns)))
-    solutions.toList
-  }
-
-  def printSolution(count: Int, board: ChessBoard): Unit = printMode match {
-    case None => println("Found solution %d".format(count))
-    case Some(mode) => mode match {
-      case Silent => // print nothing
-      case Verbose => {
-        println("Solution %d:".format(count))
-        board.prettyPrint
-        println
-      }
-    }
-    case _ => throw new IllegalArgumentException("Unknown print mode!")
+    chessPieces.distinct.foreach(piece => placeChessPiece(piece, Nil, new ChessBoard(rows, columns)))
+    solutions
   }
 
 }
