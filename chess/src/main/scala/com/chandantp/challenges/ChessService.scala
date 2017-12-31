@@ -8,7 +8,7 @@ class ChessService(rows: Int, columns: Int, pieces: String) {
 
   def solutionSize = solutions.size
 
-  def lastComputedSolution: ChessBoard = solutions.last
+  def lastComputedSolution: ChessBoard = solutions.head
 
   def computeSolutions: List[ChessBoard] = {
     /*
@@ -20,8 +20,8 @@ class ChessService(rows: Int, columns: Int, pieces: String) {
       val remainingPieces = chessPieces.diff(usedPiecesUpdated).distinct
 
       for (row <- 0 until rows; col <- 0 until columns) {
-        if (board.canPlacePiece(chessPiece, row, col)) {
-          val newBoard = board.placePiece(chessPiece, row, col)
+        if (board.isSafeToPlace(chessPiece, row, col)) {
+          val newBoard = board.place(chessPiece, row, col)
           val newBoardBranch = newBoard.encoded
           if (!solutionSpace.isExplored(newBoardBranch)) {
             remainingPieces.foreach(piece => placeChessPiece(piece, usedPiecesUpdated, newBoard))
@@ -34,7 +34,7 @@ class ChessService(rows: Int, columns: Int, pieces: String) {
       }
     }
 
-    chessPieces.distinct.foreach(piece => placeChessPiece(piece, Nil, new ChessBoard(rows, columns)))
+    chessPieces.distinct.foreach(piece => placeChessPiece(piece, Nil, ChessBoard.create(rows, columns)))
     solutions
   }
 

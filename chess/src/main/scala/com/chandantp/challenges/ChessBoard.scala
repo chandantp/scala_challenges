@@ -7,98 +7,87 @@ object ChessBoard {
   val Bishop = 'B'
   val Knight = 'N'
 
-  val Empty = ' '
-  val Empty_But_Unsafe = 'x'
+  def create(rows: Int, columns: Int) = {
+    val emptyAndSafePositions =
+      for (row <- 0 until rows; col <- 0 until columns) yield (row, col)
+
+    new ChessBoard(rows, columns, Map.empty, emptyAndSafePositions.toSet)
+  }
 }
 
-class ChessBoard(rows: Int, columns: Int, board: String) {
+class ChessBoard private (rows: Int,
+                          columns: Int,
+                          pieces: Map[(Int, Int), Char],
+                          emptyAndSafePositions: Set[(Int, Int)]) {
 
   import ChessBoard._
-  private val BoardSize = rows * columns
-
-  if (board.size != BoardSize) {
-    throw new IllegalArgumentException("Invalid board size = %d, should be %d !!".format(board.size, BoardSize))
-  }
-
-  def this(rows: Int, cols: Int) {
-    this(rows, cols, ChessBoard.Empty.toString * rows * cols)
-  }
-
-  private def position(row: Int, col: Int) = row * columns + col
 
   private def isValid(row: Int, col: Int) = {
     row >= 0 && row < rows && col >= 0 && col < columns
-  }
-
-  private def isEmpty(ch: Char): Boolean = (ch == Empty_But_Unsafe || ch == Empty)
-
-  private def isEmpty(board: String, position: Int): Boolean = isEmpty(board(position))
-
-  private def isOccupied(row: Int, col: Int) = {
-    val pos = position(row, col)
-    isValid(row, col) && board(pos) != Empty && board(pos) != Empty_But_Unsafe
-  }
-
-  private def isRowOccupied(row: Int) = {
-    def _isRowOccupied(c: Int): Boolean = {
-      if (c == columns) false else (if (isOccupied(row, c)) true else _isRowOccupied(c+1))
-    }
-    _isRowOccupied(0)
-  }
-
-  private def isColumnOccupied(col: Int) = {
-    def _isColumnOccupied(r: Int): Boolean = {
-      if (r == rows) false else (if (isOccupied(r, col)) true else _isColumnOccupied(r+1))
-    }
-    _isColumnOccupied(0)
-  }
-
-  private def areDiagonalsOccupied(row: Int, col: Int) = {
-    def isDiagonalOccupied(rdelta: Int, cdelta: Int): Boolean = {
-      def _isDiagonalOccupied(r: Int, c: Int): Boolean = {
-        if (!isValid(r, c)) false
-        else if (isOccupied(r, c)) true else _isDiagonalOccupied(r+rdelta, c+cdelta)
-      }
-      _isDiagonalOccupied(row, col)
-    }
-    (isDiagonalOccupied(-1, -1) || isDiagonalOccupied(-1, 1) ||
-      isDiagonalOccupied(1, 1) || isDiagonalOccupied(1, -1))
   }
 
   /*
    * Check if piece can be safely placed without threatening any
    * existing pawns already present on the chess board
    */
-  def canPlacePiece(piece: Char, row: Int, col: Int): Boolean = piece match {
-    case King   => {
-      board(position(row, col)) == Empty &&
+  def isSafeToPlace(piece: Char, row: Int, col: Int): Boolean = {
+
+    def isOccupied(row: Int, col: Int) = {
+      isValid(row, col) && pieces.contains((row, col))
+    }
+
+    def isRowOccupied(row: Int) = {
+      def _isRowOccupied(c: Int): Boolean = {
+        if (c == columns) false else if (isOccupied(row, c)) true else _isRowOccupied(c+1)
+      }
+      _isRowOccupied(0)
+    }
+
+    def isColumnOccupied(col: Int) = {
+      def _isColumnOccupied(r: Int): Boolean = {
+        if (r == rows) false else if (isOccupied(r, col)) true else _isColumnOccupied(r+1)
+      }
+      _isColumnOccupied(0)
+    }
+
+    def areDiagonalsOccupied(row: Int, col: Int) = {
+      def isDiagonalOccupied(rdelta: Int, cdelta: Int): Boolean = {
+        def _isDiagonalOccupied(r: Int, c: Int): Boolean = {
+          if (!isValid(r, c)) false
+          else if (isOccupied(r, c)) true else _isDiagonalOccupied(r+rdelta, c+cdelta)
+        }
+        _isDiagonalOccupied(row, col)
+      }
+
+      isDiagonalOccupied(-1, -1) || isDiagonalOccupied(-1, 1) ||
+        isDiagonalOccupied(1, 1) || isDiagonalOccupied(1, -1)
+    }
+
+    piece match {
+      case King   => emptyAndSafePositions.contains(row, col) &&
         !(isOccupied(row - 1, col - 1) || isOccupied(row - 1, col) ||
           isOccupied(row - 1, col + 1) || isOccupied(row, col + 1) ||
           isOccupied(row + 1, col + 1) || isOccupied(row + 1, col) ||
           isOccupied(row + 1, col - 1) || isOccupied(row, col - 1))
-    }
-    case Queen  => {
-      board(position(row, col)) == Empty &&
+
+      case Queen  => emptyAndSafePositions.contains(row, col) &&
         !(isRowOccupied(row) || isColumnOccupied(col) || areDiagonalsOccupied(row, col))
-    }
-    case Rook   => {
-      board(position(row, col)) == Empty &&
+
+      case Rook   => emptyAndSafePositions.contains(row, col) &&
         !(isRowOccupied(row) || isColumnOccupied(col))
 
-    }
-    case Bishop => {
-      board(position(row, col)) == Empty &&
+      case Bishop => emptyAndSafePositions.contains(row, col) &&
         !(areDiagonalsOccupied(row, col))
-    }
-    case Knight => {
-      board(position(row, col)) == Empty &&
+
+      case Knight => emptyAndSafePositions.contains(row, col) &&
         !(isOccupied(row - 2, col - 1) || isOccupied(row - 2, col + 1) ||
           isOccupied(row + 2, col - 1) || isOccupied(row + 2, col + 1) ||
           isOccupied(row - 1, col - 2) || isOccupied(row + 1, col - 2) ||
           isOccupied(row - 1, col + 2) || isOccupied(row + 1, col + 2))
-    }
-    case _ => {
-      throw new IllegalArgumentException("Unknown chess piece '%c'".format(piece))
+
+      case _ => {
+        throw new IllegalArgumentException("Unknown chess piece '%c'".format(piece))
+      }
     }
   }
 
@@ -106,94 +95,94 @@ class ChessBoard(rows: Int, columns: Int, board: String) {
    * Place piece at the specified location on the chess board
    * and mark locations that can be attacked by the piece as unsafe
    */
-  def placePiece(piece: Char, row: Int, col: Int): ChessBoard = {
+  def place(piece: Char, row: Int, col: Int): ChessBoard = {
 
-    val buf = new StringBuilder(board)
+    def unsafeRowPositions(row: Int) = { for (c <- 0 until columns) yield (row, c) }.toSet
 
-    def markUnsafe(row: Int, col: Int) {
-      val pos = position(row, col)
-      if (isValid(row, col)) buf(pos) = Empty_But_Unsafe
-    }
+    def unsafeColumnPositions(col: Int) = { for (r <- 0 until rows) yield (r, col) }.toSet
 
-    def markRowUnsafe(row: Int) = for (c <- 0 until columns) markUnsafe(row, c)
-
-    def markColumnUnsafe(col: Int) = for (r <- 0 until rows) markUnsafe(r, col)
-
-    def markDiagonalsUnsafe(row: Int, col: Int) {
-      def markDiagonalUnsafe(r: Int, c: Int, rdelta: Int, cdelta: Int) {
-        if (isValid(r + rdelta, c + cdelta)) {
-          markUnsafe(r + rdelta, c + cdelta)
-          markDiagonalUnsafe(r + rdelta, c + cdelta, rdelta, cdelta)
+    def unsafeDiagonalsPositions(row: Int, col: Int): Set[(Int, Int)] = {
+      def unsafeDiagonalPositions(r: Int, c: Int, rdelta: Int, cdelta: Int): Set[(Int, Int)] = {
+        if (!isValid(r + rdelta, c + cdelta)) Set.empty[(Int, Int)] else {
+          Set((r + rdelta, c + cdelta)) ++ unsafeDiagonalPositions(r + rdelta, c + cdelta, rdelta, cdelta)
         }
       }
-      markUnsafe(row, col)
-      markDiagonalUnsafe(row, col, -1, -1) // Top-Left
-      markDiagonalUnsafe(row, col, -1, 1) // Top-Right
-      markDiagonalUnsafe(row, col, 1, 1) // Bottom-Right
-      markDiagonalUnsafe(row, col, 1, -1) // Bottom-Left
+      unsafeDiagonalPositions(row, col, -1, -1) ++ // Top-Left
+      unsafeDiagonalPositions(row, col, -1, 1)  ++ // Top-Right
+      unsafeDiagonalPositions(row, col, 1, 1) ++ // Bottom-Right
+      unsafeDiagonalPositions(row, col, 1, -1) // Bottom-Left
     }
 
-    if (isValid(row, col)) piece match {
+    if (!isValid(row, col)) {
+      throw new IllegalArgumentException("Invalid location (row, column) = (%d, %d) !!".format(row, col))
+    }
+
+    piece match {
       case King   => {
-        markUnsafe(row - 1, col - 1); // Top-Left
-        markUnsafe(row - 1, col); // Top
-        markUnsafe(row - 1, col + 1); // Top-Right
-        markUnsafe(row, col + 1); // Right
-        markUnsafe(row + 1, col + 1); // Bottom-Right
-        markUnsafe(row + 1, col); // Bottom
-        markUnsafe(row + 1, col - 1); // Bottom-Left
-        markUnsafe(row, col - 1); // Left
-        buf(position(row, col)) = King
+        val unsafePositions = Set(
+          (row, col),
+          (row - 1, col - 1), // Top-Left
+          (row - 1, col),     // Top
+          (row - 1, col + 1), // Top-Right
+          (row, col + 1),     // Right
+          (row + 1, col + 1), // Bottom-Right
+          (row + 1, col),     // Bottom
+          (row + 1, col - 1), // Bottom-Left
+          (row, col - 1)      // Left
+        )
+        new ChessBoard(rows, columns, pieces + ((row, col) -> King), emptyAndSafePositions -- unsafePositions)
       }
+
       case Queen  => {
-        markRowUnsafe(row)
-        markColumnUnsafe(col)
-        markDiagonalsUnsafe(row, col)
-        buf(position(row, col)) = Queen
+        val unsafePositions = Set((row, col)) ++
+          unsafeRowPositions(row) ++
+          unsafeColumnPositions(col) ++
+          unsafeDiagonalsPositions(row, col)
+        new ChessBoard(rows, columns, pieces + ((row, col) -> Queen), emptyAndSafePositions -- unsafePositions)
       }
+
       case Rook   => {
-        markRowUnsafe(row)
-        markColumnUnsafe(col)
-        buf(position(row, col)) = Rook
+        val unsafePositions = Set((row, col)) ++ unsafeRowPositions(row) ++ unsafeColumnPositions(col)
+        new ChessBoard(rows, columns, pieces + ((row, col) -> Rook), emptyAndSafePositions -- unsafePositions)
       }
+
       case Bishop => {
-        markDiagonalsUnsafe(row, col)
-        buf(position(row, col)) = Bishop
+        val unsafePositions = Set((row, col)) ++ unsafeDiagonalsPositions(row, col)
+        new ChessBoard(rows, columns, pieces + ((row, col) -> Bishop), emptyAndSafePositions -- unsafePositions)
       }
+
       case Knight => {
-        markUnsafe(row - 2, col - 1) // Top-Left
-        markUnsafe(row - 2, col + 1) // Top-Right
-        markUnsafe(row + 2, col - 1) // Bottom-Left
-        markUnsafe(row + 2, col + 1) // Bottom-Right
-        markUnsafe(row - 1, col - 2) // Left-Top
-        markUnsafe(row + 1, col - 2) // Left-Bottom
-        markUnsafe(row - 1, col + 2) // Right-Top
-        markUnsafe(row + 1, col + 2) // Right-Bottom
-        buf(position(row, col)) = Knight
+        val unsafePositions = Set(
+          (row, col),
+          (row - 2, col - 1), // Top-Left
+          (row - 2, col + 1), // Top-Right
+          (row + 2, col - 1), // Bottom-Left
+          (row + 2, col + 1), // Bottom-Right
+          (row - 1, col - 2), // Left-Top
+          (row + 1, col - 2), // Left-Bottom
+          (row - 1, col + 2), // Right-Top
+          (row + 1, col + 2)  // Right-Bottom
+        )
+        new ChessBoard(rows, columns, pieces + ((row, col) -> Knight), emptyAndSafePositions -- unsafePositions)
       }
+
       case _ => {
         throw new IllegalArgumentException("Unknown chess piece '%c'".format(piece))
       }
     }
-
-    // return new chess board after placing the piece
-    new ChessBoard(rows, columns, buf.toString)
-
   }
 
-  // return chess board as list of "position:piece" pairs
-  def encoded: List[String] = {
-    board.zipWithIndex.filter{case (c,_) => !isEmpty(c)}.map{case (piece,i) => i+""+piece}.toList
-  }
+  // return chess board as list of "PositionPiece" stringx
+  def encoded: List[String] = pieces.toList.sorted.map{ case((x,y),piece) => x * rows + y + "" + piece }
 
   override def toString: String = encoded.mkString(":")
 
-  def toStringDetailed: String = {
+  def toPrettyPrintString: String = {
     val buf = new StringBuffer
     for (row <- 0 until rows; col <- 0 until columns) {
-      val pos = row * columns + col
-      val piece = if (isEmpty(board, pos)) Empty else board(pos)
-      buf.append("|" + piece + (if (col < columns - 1) "" else "|\n"))
+      buf.append("|")
+      buf.append(pieces.getOrElse((row, col), " "))
+      buf.append(if (col < columns - 1) "" else "|\n")
     }
     buf.toString
   }

@@ -70,7 +70,7 @@ object MainApp {
   def printSolution(count: Int, board: ChessBoard, printMode: Option[String]): Unit = printMode match {
     case None => println("Found solution %d".format(count))
     case Some(Silent) => // print nothing
-    case Some(Verbose) => println("Solution %d:\n%s".format(count, board.toStringDetailed))
+    case Some(Verbose) => println("Solution %d:\n%s".format(count, board.toPrettyPrintString))
     case _ => throw new IllegalArgumentException("Unknown print mode!")
   }
 
