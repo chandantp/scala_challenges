@@ -97,20 +97,23 @@ class ChessBoard private (rows: Int,
    */
   def place(piece: Char, row: Int, col: Int): ChessBoard = {
 
-    def unsafeRowPositions(row: Int) = { for (c <- 0 until columns) yield (row, c) }.toSet
+    val unsafePositions = collection.mutable.Set.empty[(Int,Int)]
 
-    def unsafeColumnPositions(col: Int) = { for (r <- 0 until rows) yield (r, col) }.toSet
+    def unsafeRowPositions(row: Int) = for (c <- 0 until columns) unsafePositions.add((row, c))
 
-    def unsafeDiagonalsPositions(row: Int, col: Int): Set[(Int, Int)] = {
-      def unsafeDiagonalPositions(r: Int, c: Int, rdelta: Int, cdelta: Int): Set[(Int, Int)] = {
+    def unsafeColumnPositions(col: Int) = for (r <- 0 until rows) unsafePositions.add((r, col))
+
+    def unsafeDiagonalsPositions(row: Int, col: Int): Unit = {
+      def unsafeDiagonalPositions(r: Int, c: Int, rdelta: Int, cdelta: Int): Unit = {
         if (!isValid(r + rdelta, c + cdelta)) Set.empty[(Int, Int)] else {
-          Set((r + rdelta, c + cdelta)) ++ unsafeDiagonalPositions(r + rdelta, c + cdelta, rdelta, cdelta)
+          unsafePositions.add((r + rdelta, c + cdelta))
+          unsafeDiagonalPositions(r + rdelta, c + cdelta, rdelta, cdelta)
         }
       }
-      unsafeDiagonalPositions(row, col, -1, -1) ++ // Top-Left
-      unsafeDiagonalPositions(row, col, -1, 1)  ++ // Top-Right
-      unsafeDiagonalPositions(row, col, 1, 1) ++ // Bottom-Right
-      unsafeDiagonalPositions(row, col, 1, -1) // Bottom-Left
+      unsafeDiagonalPositions(row, col, -1, -1) // Top-Left
+      unsafeDiagonalPositions(row, col, -1, 1)  // Top-Right
+      unsafeDiagonalPositions(row, col, 1, 1)   // Bottom-Right
+      unsafeDiagonalPositions(row, col, 1, -1)  // Bottom-Left
     }
 
     if (!isValid(row, col)) {
@@ -119,50 +122,49 @@ class ChessBoard private (rows: Int,
 
     piece match {
       case King   => {
-        val unsafePositions = Set(
-          (row, col),
-          (row - 1, col - 1), // Top-Left
-          (row - 1, col),     // Top
-          (row - 1, col + 1), // Top-Right
-          (row, col + 1),     // Right
-          (row + 1, col + 1), // Bottom-Right
-          (row + 1, col),     // Bottom
-          (row + 1, col - 1), // Bottom-Left
-          (row, col - 1)      // Left
-        )
+        unsafePositions.add((row, col))
+        unsafePositions.add((row - 1, col - 1)) // Top-Left
+        unsafePositions.add((row - 1, col))     // Top
+        unsafePositions.add((row - 1, col + 1)) // Top-Right
+        unsafePositions.add((row, col + 1))     // Right
+        unsafePositions.add((row + 1, col + 1)) // Bottom-Right
+        unsafePositions.add((row + 1, col))     // Bottom
+        unsafePositions.add((row + 1, col - 1)) // Bottom-Left
+        unsafePositions.add((row, col - 1))     // Left
         new ChessBoard(rows, columns, pieces + ((row, col) -> King), emptyAndSafePositions -- unsafePositions)
       }
 
       case Queen  => {
-        val unsafePositions = Set((row, col)) ++
-          unsafeRowPositions(row) ++
-          unsafeColumnPositions(col) ++
-          unsafeDiagonalsPositions(row, col)
+        unsafePositions.add((row, col))
+        unsafeRowPositions(row)
+        unsafeColumnPositions(col)
+        unsafeDiagonalsPositions(row, col)
         new ChessBoard(rows, columns, pieces + ((row, col) -> Queen), emptyAndSafePositions -- unsafePositions)
       }
 
       case Rook   => {
-        val unsafePositions = Set((row, col)) ++ unsafeRowPositions(row) ++ unsafeColumnPositions(col)
+        unsafePositions.add((row, col))
+        unsafeRowPositions(row)
+        unsafeColumnPositions(col)
         new ChessBoard(rows, columns, pieces + ((row, col) -> Rook), emptyAndSafePositions -- unsafePositions)
       }
 
       case Bishop => {
-        val unsafePositions = Set((row, col)) ++ unsafeDiagonalsPositions(row, col)
+        unsafePositions.add((row, col))
+        unsafeDiagonalsPositions(row, col)
         new ChessBoard(rows, columns, pieces + ((row, col) -> Bishop), emptyAndSafePositions -- unsafePositions)
       }
 
       case Knight => {
-        val unsafePositions = Set(
-          (row, col),
-          (row - 2, col - 1), // Top-Left
-          (row - 2, col + 1), // Top-Right
-          (row + 2, col - 1), // Bottom-Left
-          (row + 2, col + 1), // Bottom-Right
-          (row - 1, col - 2), // Left-Top
-          (row + 1, col - 2), // Left-Bottom
-          (row - 1, col + 2), // Right-Top
-          (row + 1, col + 2)  // Right-Bottom
-        )
+        unsafePositions.add((row, col))
+        unsafePositions.add((row - 2, col - 1)) // Top-Left
+        unsafePositions.add((row - 2, col + 1)) // Top-Right
+        unsafePositions.add((row + 2, col - 1)) // Bottom-Left
+        unsafePositions.add((row + 2, col + 1)) // Bottom-Right
+        unsafePositions.add((row - 1, col - 2)) // Left-Top
+        unsafePositions.add((row + 1, col - 2)) // Left-Bottom
+        unsafePositions.add((row - 1, col + 2)) // Right-Top
+        unsafePositions.add((row + 1, col + 2))  // Right-Bottom
         new ChessBoard(rows, columns, pieces + ((row, col) -> Knight), emptyAndSafePositions -- unsafePositions)
       }
 
