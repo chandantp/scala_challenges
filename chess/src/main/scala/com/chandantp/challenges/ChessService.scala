@@ -3,38 +3,36 @@ package com.chandantp.challenges
 class ChessService(rows: Int, columns: Int, pieces: String) {
 
   private val chessPieces = pieces.split("").toList.map(_ (0))
-  private val solutionSpace = TrackerTree(collection.mutable.Map())
-  private var solutions = List[ChessBoard]()
+  private var solutions = Set[ChessBoard]()
 
-  def solutionSize = solutions.size
+  def computedSolutionsCount = solutions.size
 
   def lastComputedSolution: ChessBoard = solutions.head
 
-  def computeSolutions: List[ChessBoard] = {
-    /*
-     * Find all possible combinations of non-threatening positions
-     * that the chess pieces can occupy on the chess board
-     */
-    def placeChessPiece(chessPiece: Char, usedPieces: List[Char], board: ChessBoard): Unit = {
-      val usedPiecesUpdated = chessPiece :: usedPieces
-      val remainingPieces = chessPieces.diff(usedPiecesUpdated).distinct
+  /*
+   * Find all possible combinations of non-threatening positions
+   * that the chess pieces can occupy on the chess board
+   */
+  def computeSolutions: Set[ChessBoard] = {
 
-      for (row <- 0 until rows; col <- 0 until columns) {
-        if (board.isSafeToPlace(chessPiece, row, col)) {
-          val newBoard = board.place(chessPiece, row, col)
-          val newBoardBranch = newBoard.encoded
-          if (!solutionSpace.isExplored(newBoardBranch)) {
-            remainingPieces.foreach(piece => placeChessPiece(piece, usedPiecesUpdated, newBoard))
-            solutionSpace.markAsExplored(newBoardBranch)
-            if (newBoardBranch.size == chessPieces.size) {
-              solutions = newBoard :: solutions
-            }
+    def placeChessPiece(pieceToBePlaced: Char, piecesRemaining: List[Char], board: ChessBoard): Unit = {
+      val minimumStartingPosition = board.minLinearPosition(pieceToBePlaced)
+      for(currentPosition <- 0 until rows * columns) {
+        val (row, col) = (currentPosition / rows, currentPosition % rows)
+
+        if (currentPosition >= minimumStartingPosition && board.isSafeToPlace(pieceToBePlaced, row, col)) {
+          val updatedBoard = board.place(pieceToBePlaced, row, col)
+          if (updatedBoard.piecesCount == chessPieces.size) {
+            solutions += updatedBoard
+          }
+          else if (piecesRemaining.size > 0) {
+            placeChessPiece(piecesRemaining.head, piecesRemaining.tail, updatedBoard)
           }
         }
       }
     }
 
-    chessPieces.distinct.foreach(piece => placeChessPiece(piece, Nil, ChessBoard.create(rows, columns)))
+    placeChessPiece(chessPieces.head, chessPieces.tail, ChessBoard.create(rows, columns))
     solutions
   }
 

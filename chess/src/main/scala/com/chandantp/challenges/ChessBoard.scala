@@ -11,20 +11,23 @@ object ChessBoard {
     val emptyAndSafePositions =
       for (row <- 0 until rows; col <- 0 until columns) yield (row, col)
 
-    new ChessBoard(rows, columns, Map.empty, emptyAndSafePositions.toSet)
+    new ChessBoard(rows, columns, Map.empty, emptyAndSafePositions.toSet, Map.empty)
   }
 }
 
 class ChessBoard private (rows: Int,
                           columns: Int,
-                          pieces: Map[(Int, Int), Char],
-                          emptyAndSafePositions: Set[(Int, Int)]) {
+                          position2chessPiece: Map[(Int, Int), Char],
+                          emptyAndSafePositions: Set[(Int, Int)],
+                          piece2MaxLinearPosition: Map[Char, Int]) {
 
   import ChessBoard._
 
-  private def isValid(row: Int, col: Int) = {
-    row >= 0 && row < rows && col >= 0 && col < columns
-  }
+  def isValid(row: Int, col: Int): Boolean = row >= 0 && row < rows && col >= 0 && col < columns
+
+  def piecesCount: Int = position2chessPiece.size
+
+  def minLinearPosition(piece: Char): Int = piece2MaxLinearPosition.getOrElse(piece, -1) + 1
 
   /*
    * Check if piece can be safely placed without threatening any
@@ -33,7 +36,7 @@ class ChessBoard private (rows: Int,
   def isSafeToPlace(piece: Char, row: Int, col: Int): Boolean = {
 
     def isOccupied(row: Int, col: Int) = {
-      isValid(row, col) && pieces.contains((row, col))
+      isValid(row, col) && position2chessPiece.contains((row, col))
     }
 
     def isRowOccupied(row: Int) = {
@@ -116,6 +119,12 @@ class ChessBoard private (rows: Int,
       unsafeDiagonalPositions(row, col, 1, -1)  // Bottom-Left
     }
 
+    def getMaxLinearPositionForChessPiece(piece: Char, row: Int, col: Int): Int = {
+      val mpos = piece2MaxLinearPosition.getOrElse(piece, -1)
+      val cpos = row * rows + col
+      if (cpos > mpos) cpos else mpos
+    }
+
     if (!isValid(row, col)) {
       throw new IllegalArgumentException("Invalid location (row, column) = (%d, %d) !!".format(row, col))
     }
@@ -131,7 +140,13 @@ class ChessBoard private (rows: Int,
         unsafePositions.append((row + 1, col))     // Bottom
         unsafePositions.append((row + 1, col - 1)) // Bottom-Left
         unsafePositions.append((row, col - 1))     // Left
-        new ChessBoard(rows, columns, pieces + ((row, col) -> King), emptyAndSafePositions -- unsafePositions)
+        new ChessBoard(
+          rows,
+          columns,
+          position2chessPiece + ((row, col) -> King),
+          emptyAndSafePositions -- unsafePositions,
+          piece2MaxLinearPosition + (King -> getMaxLinearPositionForChessPiece(King, row, col))
+        )
       }
 
       case Queen  => {
@@ -139,20 +154,38 @@ class ChessBoard private (rows: Int,
         unsafeRowPositions(row)
         unsafeColumnPositions(col)
         unsafeDiagonalsPositions(row, col)
-        new ChessBoard(rows, columns, pieces + ((row, col) -> Queen), emptyAndSafePositions -- unsafePositions)
+        new ChessBoard(
+          rows,
+          columns,
+          position2chessPiece + ((row, col) -> Queen),
+          emptyAndSafePositions -- unsafePositions,
+          piece2MaxLinearPosition + (Queen -> getMaxLinearPositionForChessPiece(Queen, row, col))
+        )
       }
 
       case Rook   => {
         unsafePositions.append((row, col))
         unsafeRowPositions(row)
         unsafeColumnPositions(col)
-        new ChessBoard(rows, columns, pieces + ((row, col) -> Rook), emptyAndSafePositions -- unsafePositions)
+        new ChessBoard(
+          rows,
+          columns,
+          position2chessPiece + ((row, col) -> Rook),
+          emptyAndSafePositions -- unsafePositions,
+          piece2MaxLinearPosition + (Rook -> getMaxLinearPositionForChessPiece(Rook, row, col))
+        )
       }
 
       case Bishop => {
         unsafePositions.append((row, col))
         unsafeDiagonalsPositions(row, col)
-        new ChessBoard(rows, columns, pieces + ((row, col) -> Bishop), emptyAndSafePositions -- unsafePositions)
+        new ChessBoard(
+          rows,
+          columns,
+          position2chessPiece + ((row, col) -> Bishop),
+          emptyAndSafePositions -- unsafePositions,
+          piece2MaxLinearPosition + (Bishop -> getMaxLinearPositionForChessPiece(Bishop, row, col))
+        )
       }
 
       case Knight => {
@@ -165,7 +198,13 @@ class ChessBoard private (rows: Int,
         unsafePositions.append((row + 1, col - 2)) // Left-Bottom
         unsafePositions.append((row - 1, col + 2)) // Right-Top
         unsafePositions.append((row + 1, col + 2))  // Right-Bottom
-        new ChessBoard(rows, columns, pieces + ((row, col) -> Knight), emptyAndSafePositions -- unsafePositions)
+        new ChessBoard(
+          rows,
+          columns,
+          position2chessPiece + ((row, col) -> Knight),
+          emptyAndSafePositions -- unsafePositions,
+          piece2MaxLinearPosition + (Knight -> getMaxLinearPositionForChessPiece(Knight, row, col))
+        )
       }
 
       case _ => {
@@ -174,18 +213,18 @@ class ChessBoard private (rows: Int,
     }
   }
 
-  // return chess board as list of "PositionPiece" stringx
-  def encoded: List[String] = pieces.toList.sorted.map{ case((x,y),piece) => x * rows + y + "" + piece }
-
-  override def toString: String = encoded.mkString(":")
+  override def toString: String = {
+    position2chessPiece.toList.sorted.map{ case((x,y),piece) => x * rows + y + "" + piece }.mkString(":")
+  }
 
   def toPrettyPrintString: String = {
     val buf = new StringBuffer
     for (row <- 0 until rows; col <- 0 until columns) {
       buf.append("|")
-      buf.append(pieces.getOrElse((row, col), " "))
+      buf.append(position2chessPiece.getOrElse((row, col), " "))
       buf.append(if (col < columns - 1) "" else "|\n")
     }
     buf.toString
   }
+
 }

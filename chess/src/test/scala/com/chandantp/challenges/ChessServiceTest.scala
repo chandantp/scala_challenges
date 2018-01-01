@@ -42,7 +42,7 @@ class ChessServiceTest extends FunSuite {
     val chessSvc = new ChessService(3, 3, "KKR")
     val solutions = chessSvc.computeSolutions
     assert(solutions.size === 4)
-    assert(solutions.map(_.encoded.mkString(":")).forall(
+    assert(solutions.map(_.toString).forall(
       x => Set(
         "0K:2K:7R", "0K:5R:6K", "2K:3R:8K", "1R:6K:8K")
         .contains(x)))
@@ -52,7 +52,7 @@ class ChessServiceTest extends FunSuite {
     val chessSvc = new ChessService(5, 5, "QQQQQ")
     val solutions = chessSvc.computeSolutions
     assert(solutions.size === 10)
-    assert(solutions.map(_.encoded.mkString(":")).forall(
+    assert(solutions.map(_.toString).forall(
       x => Set(
         "0Q:7Q:14Q:16Q:23Q", "0Q:8Q:11Q:19Q:22Q", "1Q:8Q:10Q:17Q:24Q",
         "1Q:9Q:12Q:15Q:23Q", "2Q:5Q:13Q:16Q:24Q", "2Q:9Q:11Q:18Q:20Q",

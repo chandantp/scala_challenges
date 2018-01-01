@@ -6,19 +6,19 @@ import ChessBoard._
 
 class ChessBoardTest extends FunSuite {
 
-  test("chessBoard.encoded() returns empty list for empty chessboard") {
+  test("chessBoard.toString() returns empty string for empty chessboard") {
     val chessBoard = ChessBoard.create(4, 4)
-    assert(chessBoard.encoded == Nil)
+    assert(chessBoard.toString === "")
   }
 
-  test("place(King,1,1) is successful and encoded() returns List('5K')") {
+  test("place(King,1,1) is successful and chessBoard.toString returns '5K'") {
     val chessBoard = ChessBoard.create(4, 4).place(ChessBoard.King, 1, 1)
-    assert(chessBoard.encoded == List("5K"))
+    assert(chessBoard.toString === "5K")
   }
 
-  test("place(King,1,1) & place(Bishop,1,3) is successful and encoded() returns List('5K','7B')") {
+  test("place(King,1,1) & place(Bishop,1,3) is successful and chessBoard.toString() returns '5K:7B'") {
     val chessBoard = ChessBoard.create(4, 4).place(King, 1, 1).place(Bishop, 1, 3)
-    assert(chessBoard.encoded == List("5K", "7B"))
+    assert(chessBoard.toString === "5K:7B")
   }
 
   test("place(Queen,10,10) for some invalid position throws IllegalArgumentExcetion") {

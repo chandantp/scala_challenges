@@ -72,48 +72,69 @@ Examples
 
 (1) Board size: 7x7, Pawns: 2 Kings, 2 Queens, 2 Bishops & 1 Knight, PrintMode: Normal
 	
-	$ JAVA_OPTS="-Xms4g -Xmx8g" scala chess_2.12-1.0.jar 7 7 KKQQBBN
-	Found solution 1
-    Found solution 2
-    Found solution 3
-        .
-        .
-        .
-    Found solution 3063827
-    Found solution 3063828
+	$ JAVA_OPTS="-Xms2g -Xmx4g" scala target/scala-2.12/chess_2.12-1.0.jar 7 7 KKQQBBN
+    Found solution 538682
+    Found solution 1205125
+    Found solution 1734623
+    Found solution 2340682
+    Found solution 3018291
+
     Total Solutions = 3063828
-    Time elapsed = 598.139 seconds (598139 ms)
+    Time elapsed = 25.472 seconds (25472 ms)
      
-(2) Board size: 3x3, Pawns: 2 Kings & 1 Rook, PrintMode: Verbose
+(2) Board size: 7x7, Pawns: 2 Kings, 2 Queens, 2 Bishops & 1 Knight, PrintMode: Verbose
 	
-	$ export JAVA_OPTS="-Xms4g -Xmx8g" 
-	$ scala chess_2.12-1.0.jar 3 3 KKR -v
-    Solution 1:
-    |K| |K|
-    | | | |
-    | |R| |
-    
-    Solution 2:
-    |K| | |
-    | | |R|
-    |K| | |
-    
-    Solution 3:
-    | | |K|
-    |R| | |
-    | | |K|
-    
-    Solution 4:
-    | |R| |
-    | | | |
-    |K| |K|
-    
-    Total Solutions = 4
-    Time elapsed = 0.039 seconds (39 ms)
+	$ JAVA_OPTS="-Xms2g -Xmx4g" scala target/scala-2.12/chess_2.12-1.0.jar 7 7 KKQQBBN -v
+    Solution 526188:
+    | | | |K| | |K|
+    | |Q| | | | | |
+    | | | | | | | |
+    | | | | | | |N|
+    | | | |B| | | |
+    | | | | | | |B|
+    | | |Q| | | | |
 
-(3) Board size: 5x5, Pawns: 5 Queens, PrintMode: Silent
+    Solution 1213526:
+    | | | |K| | |K|
+    | |Q| | | | | |
+    | | | | | | | |
+    | | | | | | |N|
+    | | | |B| | | |
+    | | | | | | |B|
+    | | |Q| | | | |
 
-	$ JAVA_OPTS="-Xms4g -Xmx8g"
-	$ scala chess_2.12-1.0.jar 5 5 QQQQQ -s
-    Total Solutions = 10
-    Time elapsed = 0.098 seconds (98 ms)
+    Solution 1748635:
+    | | | |K| | |K|
+    | |Q| | | | | |
+    | | | | | | | |
+    | | | | | | |N|
+    | | | |B| | | |
+    | | | | | | |B|
+    | | |Q| | | | |
+
+    Solution 2373123:
+    | | | |K| | |K|
+    | |Q| | | | | |
+    | | | | | | | |
+    | | | | | | |N|
+    | | | |B| | | |
+    | | | | | | |B|
+    | | |Q| | | | |
+
+    Solution 3031855:
+    | | | |K| | |K|
+    | |Q| | | | | |
+    | | | | | | | |
+    | | | | | | |N|
+    | | | |B| | | |
+    | | | | | | |B|
+    | | |Q| | | | |
+
+    Total Solutions = 3063828
+    Time elapsed = 25.312 seconds (25312 ms)
+
+(3) Board size: 7x7, Pawns: 2 Kings, 2 Queens, 2 Bishops & 1 Knight, PrintMode: Silent
+
+	$ JAVA_OPTS="-Xms2g -Xmx4g" scala target/scala-2.12/chess_2.12-1.0.jar 7 7 KKQQBBN -s
+    Total Solutions = 3063828
+    Time elapsed = 24.597 seconds (24597 ms)

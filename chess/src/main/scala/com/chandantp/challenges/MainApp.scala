@@ -29,8 +29,8 @@ object MainApp {
 
         // Progress indicator - indicate progress every 5 seconds
         while(!task.isCompleted) {
-          if (service.solutionSize > 0) {
-            val solutionSize = service.solutionSize
+          if (service.computedSolutionsCount > 0) {
+            val solutionSize = service.computedSolutionsCount
             printSolution(solutionSize, service.lastComputedSolution, printMode)
           }
           Thread.sleep(5000)
@@ -79,12 +79,12 @@ object MainApp {
     println("USAGE: run <rows> <columns> <pawns> [-v|-s]")
     println("   rows : number of rows on the chess board")
     println("columns : number of columns on the chess board")
-    println("  pawns : a string comprising of 'K', 'Q', 'R', 'B', 'N' which denote pawns")
+    println(" pieces : a string comprising of 'K', 'Q', 'R', 'B', 'N' which denote chess pieces")
     println("          repeat the characters if the chess piece occurs multiple times.")
-    println("     -s : silent mode, solution count & solution are not printed (optional)")
-    println("     -v : print solution count & solution (optional)")
+    println("     -s : silent mode, no progress information shown, only final solution count is printed (optional)")
+    println("     -v : solution count & pretty print solution is printed every 5 seconds (optional)")
     println
-    println("Note that in the absence of -v|-s, only the solution count is printed")
+    println("Note that in the absence of -s|-v, only solution count progress info is printed every 5 seconds")
     println
     println("Examples:")
     println(" sbt run 4 4 QQQQ")
