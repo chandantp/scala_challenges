@@ -12,7 +12,7 @@ class ChessBoardTest extends FunSuite {
   }
 
   test("place(King,1,1) is successful and chessBoard.toString returns '5K'") {
-    val chessBoard = ChessBoard.create(4, 4).place(ChessBoard.King, 1, 1)
+    val chessBoard = ChessBoard.create(4, 4).place(King, 1, 1)
     assert(chessBoard.toString === "5K")
   }
 
@@ -21,7 +21,7 @@ class ChessBoardTest extends FunSuite {
     assert(chessBoard.toString === "5K:7B")
   }
 
-  test("place(Queen,10,10) for some invalid position throws IllegalArgumentExcetion") {
+  test("place(Queen,10,10) for some invalid position throws IllegalArgumentException") {
     intercept[IllegalArgumentException] {
       ChessBoard.create(4, 4).place(Queen, 10, 10)
     }

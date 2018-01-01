@@ -25,11 +25,25 @@ class ChessServiceTest extends FunSuite {
     assert(thrown.getMessage == "Invalid print mode: Some(-a)")
   }
 
+  test("Passing rows='0' throws IllegalArgumentException") {
+    intercept[IllegalArgumentException] {
+      val (rows, columns, pieces, _) = MainApp.parse(Array("0", "5", "KKKQQ"))
+      new ChessService(rows, columns, pieces)
+    }
+  }
+
+  test("Passing columns='-1' throws IllegalArgumentException") {
+    intercept[IllegalArgumentException] {
+      val (rows, columns, pieces, _) = MainApp.parse(Array("5", "-1", "KKKQQ"))
+      new ChessService(rows, columns, pieces)
+    }
+  }
+
   test("Passing invalid pawns='AKK' throws IllegalArgumentException") {
     val thrown = intercept[IllegalArgumentException] {
       MainApp.parse(Array("3", "3", "AKK"))
     }
-    assert(thrown.getMessage == "Invalid chess piece!, valid pieces are: N,Q,B,K,R")
+    assert(thrown.getMessage == "Unknown chess piece 'A'")
   }
 
   test("Passing valid rows=3, cols=3, printMode=None|-s|-v is successful") {
@@ -39,7 +53,8 @@ class ChessServiceTest extends FunSuite {
   }
 
   test("3x3 chessboard : KKR has 4 combinations") {
-    val chessSvc = new ChessService(3, 3, "KKR")
+    val (rows, columns, pieces, _) = MainApp.parse(Array("3", "3", "KKR"))
+    val chessSvc = new ChessService(rows, columns, pieces)
     val solutions = chessSvc.computeSolutions
     assert(solutions.size === 4)
     assert(solutions.map(_.toString).forall(
@@ -49,7 +64,8 @@ class ChessServiceTest extends FunSuite {
   }
   
   test("5x5 chessboard : QQQQQ has 10 combinations") {
-    val chessSvc = new ChessService(5, 5, "QQQQQ")
+    val (rows, columns, pieces, _) = MainApp.parse(Array("5", "5", "QQQQQ"))
+    val chessSvc = new ChessService(rows, columns, pieces)
     val solutions = chessSvc.computeSolutions
     assert(solutions.size === 10)
     assert(solutions.map(_.toString).forall(
@@ -62,22 +78,26 @@ class ChessServiceTest extends FunSuite {
   }
 
   test("5x5 chessboard : KKQQR has 460 combinations") {
-    val chessSvc = new ChessService(5, 5, "KKQQR")
+    val (rows, columns, pieces, _) = MainApp.parse(Array("5", "5", "KKQQR"))
+    val chessSvc = new ChessService(rows, columns, pieces)
     assert(chessSvc.computeSolutions.size === 460)
   }
 
   test("7x7 chessboard : QQQQQQQ has 40 combinations") {
-    val chessSvc = new ChessService(7, 7, "QQQQQQQ")
+    val (rows, columns, pieces, _) = MainApp.parse(Array("7", "7", "QQQQQQQ"))
+    val chessSvc = new ChessService(rows, columns, pieces)
     assert(chessSvc.computeSolutions.size === 40)
   }
   
   test("8x8 chessboard : QQQQQQQQ has 92 combinations") {
-    val chessSvc = new ChessService(8, 8, "QQQQQQQQ")
+    val (rows, columns, pieces, _) = MainApp.parse(Array("8", "8", "QQQQQQQQ"))
+    val chessSvc = new ChessService(rows, columns, pieces)
     assert(chessSvc.computeSolutions.size === 92)
   }
   
   test("6x6 chessboard : KKQBN has 4696 combinations") {
-    val chessSvc = new ChessService(5, 5, "KKQBN")
+    val (rows, columns, pieces, _) = MainApp.parse(Array("5", "5", "KKQBN"))
+    val chessSvc = new ChessService(rows, columns, pieces)
     assert(chessSvc.computeSolutions.size === 4696)
   }
   
