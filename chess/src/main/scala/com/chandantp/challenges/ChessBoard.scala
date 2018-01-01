@@ -97,16 +97,16 @@ class ChessBoard private (rows: Int,
    */
   def place(piece: Char, row: Int, col: Int): ChessBoard = {
 
-    val unsafePositions = collection.mutable.Set.empty[(Int,Int)]
+    var unsafePositions = collection.mutable.Buffer.empty[(Int,Int)]
 
-    def unsafeRowPositions(row: Int) = for (c <- 0 until columns) unsafePositions.add((row, c))
+    def unsafeRowPositions(row: Int) = for (c <- 0 until columns) unsafePositions.append((row, c))
 
-    def unsafeColumnPositions(col: Int) = for (r <- 0 until rows) unsafePositions.add((r, col))
+    def unsafeColumnPositions(col: Int) = for (r <- 0 until rows) unsafePositions.append((r, col))
 
     def unsafeDiagonalsPositions(row: Int, col: Int): Unit = {
       def unsafeDiagonalPositions(r: Int, c: Int, rdelta: Int, cdelta: Int): Unit = {
         if (!isValid(r + rdelta, c + cdelta)) Set.empty[(Int, Int)] else {
-          unsafePositions.add((r + rdelta, c + cdelta))
+          unsafePositions.append((r + rdelta, c + cdelta))
           unsafeDiagonalPositions(r + rdelta, c + cdelta, rdelta, cdelta)
         }
       }
@@ -122,20 +122,20 @@ class ChessBoard private (rows: Int,
 
     piece match {
       case King   => {
-        unsafePositions.add((row, col))
-        unsafePositions.add((row - 1, col - 1)) // Top-Left
-        unsafePositions.add((row - 1, col))     // Top
-        unsafePositions.add((row - 1, col + 1)) // Top-Right
-        unsafePositions.add((row, col + 1))     // Right
-        unsafePositions.add((row + 1, col + 1)) // Bottom-Right
-        unsafePositions.add((row + 1, col))     // Bottom
-        unsafePositions.add((row + 1, col - 1)) // Bottom-Left
-        unsafePositions.add((row, col - 1))     // Left
+        unsafePositions.append((row, col))
+        unsafePositions.append((row - 1, col - 1)) // Top-Left
+        unsafePositions.append((row - 1, col))     // Top
+        unsafePositions.append((row - 1, col + 1)) // Top-Right
+        unsafePositions.append((row, col + 1))     // Right
+        unsafePositions.append((row + 1, col + 1)) // Bottom-Right
+        unsafePositions.append((row + 1, col))     // Bottom
+        unsafePositions.append((row + 1, col - 1)) // Bottom-Left
+        unsafePositions.append((row, col - 1))     // Left
         new ChessBoard(rows, columns, pieces + ((row, col) -> King), emptyAndSafePositions -- unsafePositions)
       }
 
       case Queen  => {
-        unsafePositions.add((row, col))
+        unsafePositions.append((row, col))
         unsafeRowPositions(row)
         unsafeColumnPositions(col)
         unsafeDiagonalsPositions(row, col)
@@ -143,28 +143,28 @@ class ChessBoard private (rows: Int,
       }
 
       case Rook   => {
-        unsafePositions.add((row, col))
+        unsafePositions.append((row, col))
         unsafeRowPositions(row)
         unsafeColumnPositions(col)
         new ChessBoard(rows, columns, pieces + ((row, col) -> Rook), emptyAndSafePositions -- unsafePositions)
       }
 
       case Bishop => {
-        unsafePositions.add((row, col))
+        unsafePositions.append((row, col))
         unsafeDiagonalsPositions(row, col)
         new ChessBoard(rows, columns, pieces + ((row, col) -> Bishop), emptyAndSafePositions -- unsafePositions)
       }
 
       case Knight => {
-        unsafePositions.add((row, col))
-        unsafePositions.add((row - 2, col - 1)) // Top-Left
-        unsafePositions.add((row - 2, col + 1)) // Top-Right
-        unsafePositions.add((row + 2, col - 1)) // Bottom-Left
-        unsafePositions.add((row + 2, col + 1)) // Bottom-Right
-        unsafePositions.add((row - 1, col - 2)) // Left-Top
-        unsafePositions.add((row + 1, col - 2)) // Left-Bottom
-        unsafePositions.add((row - 1, col + 2)) // Right-Top
-        unsafePositions.add((row + 1, col + 2))  // Right-Bottom
+        unsafePositions.append((row, col))
+        unsafePositions.append((row - 2, col - 1)) // Top-Left
+        unsafePositions.append((row - 2, col + 1)) // Top-Right
+        unsafePositions.append((row + 2, col - 1)) // Bottom-Left
+        unsafePositions.append((row + 2, col + 1)) // Bottom-Right
+        unsafePositions.append((row - 1, col - 2)) // Left-Top
+        unsafePositions.append((row + 1, col - 2)) // Left-Bottom
+        unsafePositions.append((row - 1, col + 2)) // Right-Top
+        unsafePositions.append((row + 1, col + 2))  // Right-Bottom
         new ChessBoard(rows, columns, pieces + ((row, col) -> Knight), emptyAndSafePositions -- unsafePositions)
       }
 
